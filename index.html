@@ -1,1751 +1,1434 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no,
+               viewport-fit=cover">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    >
+<title>MAKTAB</title>
 
-    <title>MAKTAB</title>
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+}
 
-    <style>
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    font-family:Arial,sans-serif;
+    touch-action:none;
+}
 
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #000;
-            touch-action: none;
-            user-select: none;
-        }
+#game{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+}
 
-        body {
-            font-family: Arial, sans-serif;
-        }
+canvas{
+    display:block;
+    width:100%;
+    height:100%;
+}
 
-        #game {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
+/* =========================
+   CROSSHAIR
+========================= */
 
-        /* =========================
-           LOADING
-        ========================= */
+#crosshair{
+    position:fixed;
+    left:50%;
+    top:50%;
+    width:5px;
+    height:5px;
+    transform:translate(-50%,-50%);
+    background:white;
+    border-radius:50%;
+    opacity:.8;
+    pointer-events:none;
+    z-index:10;
+}
 
-        #loading {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #050505;
-            color: #ddd;
-            font-size: 18px;
-            z-index: 100;
-        }
+/* =========================
+   INTERACTION TEXT
+========================= */
 
-        /* =========================
-           ERROR
-        ========================= */
+#interaction{
+    position:fixed;
+    left:50%;
+    bottom:18%;
+    transform:translateX(-50%);
+    color:white;
+    font-size:14px;
+    padding:8px 13px;
+    background:rgba(0,0,0,.55);
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:6px;
+    display:none;
+    z-index:20;
+    pointer-events:none;
+}
 
-        #error {
-            position: fixed;
-            left: 20px;
-            right: 20px;
-            top: 20px;
-            padding: 15px;
-            background: #250000;
-            color: #fff;
-            border: 1px solid #660000;
-            z-index: 200;
-            display: none;
-            font-size: 14px;
-            line-height: 1.5;
-        }
+/* =========================
+   MOBILE UI
+========================= */
 
-        /* =========================
-           CROSSHAIR
-        ========================= */
+#mobileUI{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:30;
+    pointer-events:none;
+}
 
-        #crosshair {
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            width: 8px;
-            height: 8px;
-            transform: translate(-50%, -50%);
-            z-index: 20;
-            pointer-events: none;
-        }
+/* Joystick */
 
-        #crosshair::before,
-        #crosshair::after {
-            content: "";
-            position: absolute;
-            background: rgba(255, 255, 255, 0.85);
-        }
+#joystick{
+    position:absolute;
+    left:22px;
+    bottom:25px;
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.18);
+    pointer-events:auto;
+}
 
-        #crosshair::before {
-            width: 8px;
-            height: 1px;
-            left: 0;
-            top: 3px;
-        }
+#stick{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:52px;
+    height:52px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:rgba(255,255,255,.22);
+    border:1px solid rgba(255,255,255,.3);
+}
 
-        #crosshair::after {
-            width: 1px;
-            height: 8px;
-            left: 3px;
-            top: 0;
-        }
+/* Buttons */
 
-        /* =========================
-           MOBILE UI
-        ========================= */
+.mobileButton{
+    position:absolute;
+    width:54px;
+    height:54px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.10);
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    pointer-events:auto;
+    user-select:none;
+}
 
-        #mobile-ui {
-            position: fixed;
-            inset: 0;
-            z-index: 30;
-            pointer-events: none;
-            display: none;
-        }
+#flashButton{
+    right:25px;
+    bottom:28px;
+}
 
-        .mobile-button {
-            position: absolute;
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
+#interactButton{
+    right:91px;
+    bottom:28px;
+}
 
-            border: 1px solid rgba(255,255,255,0.28);
+#fullscreenButton{
+    right:20px;
+    top:20px;
+    width:42px;
+    height:42px;
+    font-size:17px;
+}
 
-            background: rgba(20,20,20,0.28);
+/* Landscape */
 
-            color: rgba(255,255,255,0.9);
+@media (pointer:coarse){
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+    #mobileUI{
+        display:block;
+    }
 
-            font-size: 22px;
+    #interaction{
+        bottom:23%;
+    }
+}
 
-            backdrop-filter: blur(4px);
+/* Portrait warning */
 
-            -webkit-backdrop-filter: blur(4px);
+#portraitWarning{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:100;
+    background:#050505;
+    color:white;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:30px;
+    font-size:18px;
+}
 
-            pointer-events: auto;
-
-            touch-action: none;
-        }
-
-        .mobile-button:active {
-            background: rgba(255,255,255,0.18);
-            transform: scale(0.94);
-        }
-
-        #flashlight-button {
-            right: 24px;
-            bottom: 120px;
-        }
-
-        #interact-button {
-            right: 92px;
-            bottom: 58px;
-        }
-
-        #fullscreen-button {
-            right: 24px;
-            top: 24px;
-        }
-
-        /* =========================
-           JOYSTICK
-        ========================= */
-
-        #joystick-area {
-            position: absolute;
-
-            left: 20px;
-            bottom: 25px;
-
-            width: 145px;
-            height: 145px;
-
-            pointer-events: auto;
-
-            touch-action: none;
-        }
-
-        #joystick-base {
-            position: absolute;
-
-            left: 15px;
-            top: 15px;
-
-            width: 115px;
-            height: 115px;
-
-            border-radius: 50%;
-
-            border: 1px solid rgba(255,255,255,0.22);
-
-            background: rgba(20,20,20,0.20);
-
-            backdrop-filter: blur(4px);
-
-            -webkit-backdrop-filter: blur(4px);
-        }
-
-        #joystick-knob {
-            position: absolute;
-
-            left: 43px;
-            top: 43px;
-
-            width: 58px;
-            height: 58px;
-
-            border-radius: 50%;
-
-            background: rgba(255,255,255,0.16);
-
-            border: 1px solid rgba(255,255,255,0.35);
-
-            pointer-events: none;
-        }
-
-        /* =========================
-           MOBILE ONLY
-        ========================= */
-
-        @media (pointer: coarse) {
-
-            #mobile-ui {
-                display: block;
-            }
-
-        }
-
-        @media (pointer: fine) {
-
-            #mobile-ui {
-                display: none;
-            }
-
-        }
-
-    </style>
+@media (orientation:portrait) and (pointer:coarse){
+    #portraitWarning{
+        display:flex;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<canvas id="game"></canvas>
-
-<div id="loading">
-    MAKTAB yuklanmoqda...
-</div>
-
-<div id="error"></div>
+<div id="game"></div>
 
 <div id="crosshair"></div>
 
-<!-- =========================
-     MOBILE CONTROLS
-========================= -->
+<div id="interaction">E — ochish</div>
 
-<div id="mobile-ui">
+<div id="mobileUI">
 
-    <div id="joystick-area">
-        <div id="joystick-base"></div>
-        <div id="joystick-knob"></div>
+    <div id="joystick">
+        <div id="stick"></div>
     </div>
 
-    <button
-        id="flashlight-button"
-        class="mobile-button"
-        type="button"
-        aria-label="Flashlight"
-    >
-        🔦
-    </button>
-
-    <button
-        id="interact-button"
-        class="mobile-button"
-        type="button"
-        aria-label="Interact"
-    >
+    <div id="interactButton" class="mobileButton">
         E
-    </button>
+    </div>
 
-    <button
-        id="fullscreen-button"
-        class="mobile-button"
-        type="button"
-        aria-label="Fullscreen"
-    >
+    <div id="flashButton" class="mobileButton">
+        🔦
+    </div>
+
+    <div id="fullscreenButton" class="mobileButton">
         ⛶
-    </button>
+    </div>
 
+</div>
+
+<div id="portraitWarning">
+    <div>
+        📱<br><br>
+        Iltimos, telefonni<br>
+        <b>gorizontal holatga</b> aylantiring.
+    </div>
 </div>
 
 
 <script type="module">
 
 import * as THREE from
-    "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 
 
-// ============================================================
-// DOM
-// ============================================================
+/* =========================================================
+   BASIC SETUP
+========================================================= */
 
-const canvas =
-    document.getElementById("game");
+const game = document.getElementById("game");
 
-const loading =
-    document.getElementById("loading");
+const scene = new THREE.Scene();
 
-const errorBox =
-    document.getElementById("error");
+scene.background = new THREE.Color(0x020202);
 
-const flashlightButton =
-    document.getElementById("flashlight-button");
+scene.fog = new THREE.Fog(
+    0x020202,
+    5,
+    42
+);
 
-const interactButton =
-    document.getElementById("interact-button");
 
-const fullscreenButton =
-    document.getElementById("fullscreen-button");
+/* =========================================================
+   CAMERA
+========================================================= */
 
-const joystickArea =
-    document.getElementById("joystick-area");
+const camera = new THREE.PerspectiveCamera(
+    70,
+    innerWidth / innerHeight,
+    0.05,
+    100
+);
 
-const joystickKnob =
-    document.getElementById("joystick-knob");
+camera.position.set(
+    0,
+    1.65,
+    8
+);
 
 
-// ============================================================
-// THREE.JS
-// ============================================================
+/* =========================================================
+   RENDERER
+========================================================= */
 
-let scene;
-let camera;
-let renderer;
-let clock;
+const renderer = new THREE.WebGLRenderer({
+    antialias:false,
+    powerPreference:"low-power"
+});
 
+renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio,1.25)
+);
 
-// ============================================================
-// PLAYER
-// ============================================================
+renderer.setSize(
+    innerWidth,
+    innerHeight
+);
 
-const player =
-    new THREE.Vector3(
-        0,
-        1.7,
-        8
-    );
+renderer.outputColorSpace =
+    THREE.SRGBColorSpace;
 
-let yaw = 0;
-let pitch = 0;
+game.appendChild(renderer.domElement);
 
-const keys = {};
 
+/* =========================================================
+   LIGHT
+========================================================= */
 
-// ============================================================
-// SETTINGS
-// ============================================================
+const ambient = new THREE.HemisphereLight(
+    0x555555,
+    0x111111,
+    0.45
+);
 
-const SETTINGS = {
+scene.add(ambient);
 
-    moveSpeed: 3.2,
 
-    mouseSensitivity: 0.0022,
+/* =========================================================
+   FLOOR
+========================================================= */
 
-    touchSensitivity: 0.004,
+const floorMaterial =
+new THREE.MeshStandardMaterial({
+    color:0x242424,
+    roughness:1
+});
 
-    maxPixelRatio: 1.5,
+const floor =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        8,0.2,50
+    ),
+    floorMaterial
+);
 
-    playerHeight: 1.7,
+floor.position.y = -0.1;
 
-    corridorMinX: -3.55,
+scene.add(floor);
 
-    corridorMaxX: 3.55,
 
-    corridorMinZ: -40.2,
+/* =========================================================
+   CEILING
+========================================================= */
 
-    corridorMaxZ: 7.6
+const ceiling =
+new THREE.Mesh(
+    new THREE.BoxGeometry(
+        8,0.2,50
+    ),
+    new THREE.MeshStandardMaterial({
+        color:0x111111
+    })
+);
 
-};
+ceiling.position.y = 3.5;
 
+scene.add(ceiling);
 
-// ============================================================
-// MOBILE INPUT
-// ============================================================
 
-let joystickX = 0;
-let joystickY = 0;
+/* =========================================================
+   WALL MATERIAL
+========================================================= */
 
-let joystickPointerId = null;
+const wallMaterial =
+new THREE.MeshStandardMaterial({
+    color:0x303030,
+    roughness:1
+});
 
-let lookPointerId = null;
 
-let lookLastX = 0;
-let lookLastY = 0;
+/* =========================================================
+   WALL CREATOR
+========================================================= */
 
+const colliders = [];
 
-// ============================================================
-// FLASHLIGHT
-// ============================================================
-
-let flashlightOn = false;
-
-let flashlight;
-
-
-// ============================================================
-// INIT
-// ============================================================
-
-function init() {
-
-    try {
-
-        // ====================================================
-        // SCENE
-        // ====================================================
-
-        scene =
-            new THREE.Scene();
-
-        scene.background =
-            new THREE.Color(
-                0x08090b
-            );
-
-        scene.fog =
-            new THREE.Fog(
-                0x08090b,
-                8,
-                45
-            );
-
-
-        // ====================================================
-        // CAMERA
-        // ====================================================
-
-        camera =
-            new THREE.PerspectiveCamera(
-                70,
-                window.innerWidth /
-                window.innerHeight,
-                0.05,
-                100
-            );
-
-        camera.position.copy(player);
-
-
-        // ====================================================
-        // RENDERER
-        // ====================================================
-
-        renderer =
-            new THREE.WebGLRenderer({
-
-                canvas,
-
-                antialias: false,
-
-                powerPreference:
-                    "low-power"
-
-            });
-
-        renderer.setPixelRatio(
-            Math.min(
-                window.devicePixelRatio || 1,
-                SETTINGS.maxPixelRatio
-            )
-        );
-
-        renderer.setSize(
-            window.innerWidth,
-            window.innerHeight
-        );
-
-        renderer.outputColorSpace =
-            THREE.SRGBColorSpace;
-
-
-        // ====================================================
-        // LIGHTING
-        // ====================================================
-
-        const ambient =
-            new THREE.HemisphereLight(
-                0x7d8795,
-                0x151515,
-                1.15
-            );
-
-        scene.add(ambient);
-
-
-        createCeilingLight(
-            0,
-            2
-        );
-
-        createCeilingLight(
-            0,
-            -6
-        );
-
-        createCeilingLight(
-            0,
-            -14
-        );
-
-        createCeilingLight(
-            0,
-            -22
-        );
-
-        createCeilingLight(
-            0,
-            -30
-        );
-
-
-        // ====================================================
-        // MATERIALS
-        // ====================================================
-
-        const floorMaterial =
-            new THREE.MeshStandardMaterial({
-                color: 0x4a4a47,
-                roughness: 0.92
-            });
-
-
-        const wallMaterial =
-            new THREE.MeshStandardMaterial({
-                color: 0x77736d,
-                roughness: 0.96
-            });
-
-
-        const ceilingMaterial =
-            new THREE.MeshStandardMaterial({
-                color: 0x62625e,
-                roughness: 1
-            });
-
-
-        const doorMaterial =
-            new THREE.MeshStandardMaterial({
-                color: 0x3d3029,
-                roughness: 0.92
-            });
-
-
-        // ====================================================
-        // FLOOR
-        // ====================================================
-
-        createBox(
-            8,
-            0.15,
-            50,
-            0,
-            -0.075,
-            -16,
-            floorMaterial
-        );
-
-
-        // ====================================================
-        // CEILING
-        // ====================================================
-
-        createBox(
-            8,
-            0.15,
-            50,
-            0,
-            3.7,
-            -16,
-            ceilingMaterial
-        );
-
-
-        // ====================================================
-        // WALLS
-        // ====================================================
-
-        createBox(
-            0.25,
-            3.7,
-            50,
-            -4,
-            1.85,
-            -16,
-            wallMaterial
-        );
-
-        createBox(
-            0.25,
-            3.7,
-            50,
-            4,
-            1.85,
-            -16,
-            wallMaterial
-        );
-
-        createBox(
-            8,
-            3.7,
-            0.25,
-            0,
-            1.85,
-            -41,
-            wallMaterial
-        );
-
-
-        // ====================================================
-        // DOORS
-        // ====================================================
-
-        createDoor(
-            -3.82,
-            -3,
-            doorMaterial
-        );
-
-        createDoor(
-            3.82,
-            -9,
-            doorMaterial
-        );
-
-        createDoor(
-            -3.82,
-            -16,
-            doorMaterial
-        );
-
-        createDoor(
-            3.82,
-            -24,
-            doorMaterial
-        );
-
-        createDoor(
-            -3.82,
-            -31,
-            doorMaterial
-        );
-
-
-        // ====================================================
-        // WINDOWS
-        // ====================================================
-
-        createWindow(
-            -3.82,
-            -6
-        );
-
-        createWindow(
-            -3.82,
-            -12
-        );
-
-        createWindow(
-            -3.82,
-            -21
-        );
-
-        createWindow(
-            -3.82,
-            -28
-        );
-
-
-        // ====================================================
-        // DESKS
-        // ====================================================
-
-        createDesk(
-            -2.2,
-            -7
-        );
-
-        createDesk(
-            2.2,
-            -13
-        );
-
-        createDesk(
-            -2.2,
-            -20
-        );
-
-        createDesk(
-            2.2,
-            -27
-        );
-
-
-        // ====================================================
-        // FLASHLIGHT
-        // ====================================================
-
-        flashlight =
-            new THREE.SpotLight(
-                0xffffff,
-                0,
-                18,
-                Math.PI / 7,
-                0.55,
-                1.4
-            );
-
-        flashlight.position.set(
-            0,
-            0,
-            0
-        );
-
-        flashlight.target.position.set(
-            0,
-            0,
-            -5
-        );
-
-        camera.add(
-            flashlight
-        );
-
-        camera.add(
-            flashlight.target
-        );
-
-        scene.add(camera);
-
-
-        // ====================================================
-        // INPUT
-        // ====================================================
-
-        setupKeyboard();
-
-        setupMouse();
-
-        setupMobileControls();
-
-
-        // ====================================================
-        // RESIZE
-        // ====================================================
-
-        window.addEventListener(
-            "resize",
-            resize
-        );
-
-
-        // ====================================================
-        // CLOCK
-        // ====================================================
-
-        clock =
-            new THREE.Clock();
-
-
-        loading.style.display =
-            "none";
-
-
-        animate();
-
-
-    } catch (error) {
-
-        showError(error);
-
-    }
-
-}
-
-
-// ============================================================
-// BOX
-// ============================================================
-
-function createBox(
-    width,
-    height,
-    depth,
+function createWall(
     x,
     y,
     z,
-    material
-) {
+    sx,
+    sy,
+    sz
+){
 
-    const geometry =
+    const wall =
+    new THREE.Mesh(
         new THREE.BoxGeometry(
-            width,
-            height,
-            depth
-        );
-
-    const mesh =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
-
-    mesh.position.set(
-        x,
-        y,
-        z
+            sx,sy,sz
+        ),
+        wallMaterial
     );
 
-    scene.add(mesh);
+    wall.position.set(
+        x,y,z
+    );
 
-    return mesh;
+    scene.add(wall);
 
+    colliders.push({
+        mesh:wall,
+        type:"wall"
+    });
+
+    return wall;
 }
 
 
-// ============================================================
-// DOOR
-// ============================================================
+/* =========================================================
+   CORRIDOR WALLS
+========================================================= */
+
+createWall(
+    -4,
+    1.7,
+    -17,
+    .3,
+    3.4,
+    50
+);
+
+createWall(
+    4,
+    1.7,
+    -17,
+    .3,
+    3.4,
+    50
+);
+
+
+/* =========================================================
+   BACK WALL
+========================================================= */
+
+createWall(
+    0,
+    1.7,
+    -42,
+    8,
+    3.4,
+    .3
+);
+
+
+/* =========================================================
+   DOORS
+========================================================= */
 
 function createDoor(
     x,
     z,
-    material
-) {
+    name
+){
 
-    createBox(
-        0.15,
-        2.4,
-        1.4,
-        x,
-        1.2,
-        z,
-        material
+    const door =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            1.7,
+            2.7,
+            .18
+        ),
+        new THREE.MeshStandardMaterial({
+            color:0x292929,
+            roughness:1
+        })
     );
 
+    door.position.set(
+        x,
+        1.35,
+        z
+    );
+
+    door.userData.interactable = true;
+    door.userData.open = false;
+    door.userData.name = name;
+
+    scene.add(door);
+
+    colliders.push({
+        mesh:door,
+        type:"door"
+    });
+
+    return door;
 }
 
 
-// ============================================================
-// WINDOW
-// ============================================================
+/* =========================================================
+   DOORS
+========================================================= */
+
+const door1 =
+createDoor(
+    -3.82,
+    2,
+    "1-xona"
+);
+
+const door2 =
+createDoor(
+    3.82,
+    -5,
+    "2-xona"
+);
+
+
+/* =========================================================
+   WINDOWS
+========================================================= */
+
+const windowMaterial =
+new THREE.MeshBasicMaterial({
+    color:0x10151a
+});
 
 function createWindow(
     x,
     z
-) {
+){
 
-    const glassMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x18232b,
-            roughness: 0.4
-        });
-
-
-    createBox(
-        0.04,
-        1.4,
-        1.25,
-        x < 0
-            ? x + 0.04
-            : x - 0.04,
-        1.8,
-        z,
-        glassMaterial
+    const w =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            .08,
+            1.6,
+            2
+        ),
+        windowMaterial
     );
 
+    w.position.set(
+        x,
+        1.8,
+        z
+    );
+
+    scene.add(w);
 }
 
+createWindow(-3.8,-11);
+createWindow(-3.8,-17);
+createWindow(-3.8,-23);
 
-// ============================================================
-// DESK
-// ============================================================
+createWindow(3.8,-13);
+createWindow(3.8,-19);
+createWindow(3.8,-25);
+
+
+/* =========================================================
+   DESKS
+========================================================= */
 
 function createDesk(
     x,
     z
-) {
+){
 
-    const material =
+    const group =
+    new THREE.Group();
+
+    const top =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            1.2,
+            .12,
+            .65
+        ),
         new THREE.MeshStandardMaterial({
-            color: 0x4a3327,
-            roughness: 0.95
-        });
-
-
-    createBox(
-        1.1,
-        0.1,
-        0.65,
-        x,
-        0.9,
-        z,
-        material
+            color:0x3a3027
+        })
     );
 
+    top.position.y = .9;
 
-    const legs = [
-        [-0.42, -0.22],
-        [0.42, -0.22],
-        [-0.42, 0.22],
-        [0.42, 0.22]
+    group.add(top);
+
+    const legMaterial =
+    new THREE.MeshStandardMaterial({
+        color:0x292929
+    });
+
+    const positions = [
+        [-.45,.45,-.22],
+        [.45,.45,-.22],
+        [-.45,.45,.22],
+        [.45,.45,.22]
     ];
 
+    for(const p of positions){
 
-    for (
-        const [lx, lz]
-        of legs
-    ) {
-
-        createBox(
-            0.08,
-            0.9,
-            0.08,
-            x + lx,
-            0.45,
-            z + lz,
-            material
+        const leg =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                .08,
+                .9,
+                .08
+            ),
+            legMaterial
         );
 
+        leg.position.set(
+            p[0],
+            p[1],
+            p[2]
+        );
+
+        group.add(leg);
     }
 
-}
-
-
-// ============================================================
-// CEILING LIGHT
-// ============================================================
-
-function createCeilingLight(
-    x,
-    z
-) {
-
-    const light =
-        new THREE.PointLight(
-            0xc8d5ff,
-            5,
-            11,
-            2
-        );
-
-    light.position.set(
+    group.position.set(
         x,
-        3.3,
+        0,
         z
     );
 
-    scene.add(light);
+    scene.add(group);
 
-
-    const lampMaterial =
-        new THREE.MeshStandardMaterial({
-
-            color: 0xd9d9d0,
-
-            emissive: 0x777777,
-
-            emissiveIntensity: 0.35
-
-        });
-
-
-    createBox(
-        1.4,
-        0.08,
-        0.25,
-        x,
-        3.55,
-        z,
-        lampMaterial
-    );
-
+    colliders.push({
+        mesh:group,
+        type:"obstacle"
+    });
 }
 
+createDesk(-1.8,-8);
+createDesk(1.7,-11);
+createDesk(-1.6,-15);
+createDesk(1.6,-18);
 
-// ============================================================
-// KEYBOARD
-// ============================================================
 
-function setupKeyboard() {
+/* =========================================================
+   FLASHLIGHT
+========================================================= */
 
-    window.addEventListener(
-        "keydown",
-        event => {
+const flashlight =
+new THREE.SpotLight(
+    0xffffff,
+    2.2,
+    25,
+    Math.PI/7,
+    .5,
+    1
+);
 
-            keys[event.code] = true;
+flashlight.position.set(
+    0,
+    0,
+    0
+);
 
+camera.add(flashlight);
 
-            if (
-                event.code === "KeyF"
-            ) {
+scene.add(camera);
 
-                toggleFlashlight();
+let flashlightOn = true;
 
-            }
 
-            if (
-                event.code === "KeyE"
-            ) {
+/* =========================================================
+   PLAYER
+========================================================= */
 
-                interact();
+const player = {
 
-            }
+    height:1.65,
 
-        }
-    );
+    radius:.32,
 
+    speed:3.0,
 
-    window.addEventListener(
-        "keyup",
-        event => {
+    position:camera.position
 
-            keys[event.code] = false;
+};
 
-        }
-    );
 
-}
+/* =========================================================
+   INPUT
+========================================================= */
 
+const keys = {};
 
-// ============================================================
-// MOUSE
-// ============================================================
+window.addEventListener(
+    "keydown",
+    e=>{
+        keys[e.code] = true;
 
-function setupMouse() {
-
-    canvas.addEventListener(
-        "click",
-        () => {
-
-            if (
-                window.matchMedia(
-                    "(pointer: fine)"
-                ).matches
-            ) {
-
-                canvas.requestPointerLock();
-
-            }
-
-        }
-    );
-
-
-    document.addEventListener(
-        "mousemove",
-        event => {
-
-            if (
-                document.pointerLockElement
-                !== canvas
-            ) {
-
-                return;
-
-            }
-
-
-            yaw -=
-                event.movementX *
-                SETTINGS.mouseSensitivity;
-
-
-            pitch -=
-                event.movementY *
-                SETTINGS.mouseSensitivity;
-
-
-            limitPitch();
-
-        }
-    );
-
-}
-
-
-// ============================================================
-// MOBILE CONTROLS
-// ============================================================
-
-function setupMobileControls() {
-
-    // --------------------------------------------------------
-    // JOYSTICK
-    // --------------------------------------------------------
-
-    joystickArea.addEventListener(
-        "pointerdown",
-        event => {
-
-            joystickPointerId =
-                event.pointerId;
-
-            joystickArea.setPointerCapture(
-                event.pointerId
-            );
-
-            updateJoystick(
-                event
-            );
-
-        }
-    );
-
-
-    joystickArea.addEventListener(
-        "pointermove",
-        event => {
-
-            if (
-                event.pointerId !==
-                joystickPointerId
-            ) {
-
-                return;
-
-            }
-
-            updateJoystick(
-                event
-            );
-
-        }
-    );
-
-
-    const releaseJoystick = event => {
-
-        if (
-            event.pointerId !==
-            joystickPointerId
-        ) {
-
-            return;
-
-        }
-
-        joystickPointerId = null;
-
-        joystickX = 0;
-        joystickY = 0;
-
-        joystickKnob.style.transform =
-            "translate(0px, 0px)";
-
-    };
-
-
-    joystickArea.addEventListener(
-        "pointerup",
-        releaseJoystick
-    );
-
-    joystickArea.addEventListener(
-        "pointercancel",
-        releaseJoystick
-    );
-
-
-    // --------------------------------------------------------
-    // TOUCH LOOK
-    // --------------------------------------------------------
-
-    canvas.addEventListener(
-        "pointerdown",
-        event => {
-
-            if (
-                !window.matchMedia(
-                    "(pointer: coarse)"
-                ).matches
-            ) {
-
-                return;
-
-            }
-
-
-            if (
-                event.clientX <
-                window.innerWidth * 0.35
-            ) {
-
-                return;
-
-            }
-
-
-            lookPointerId =
-                event.pointerId;
-
-            lookLastX =
-                event.clientX;
-
-            lookLastY =
-                event.clientY;
-
-            canvas.setPointerCapture(
-                event.pointerId
-            );
-
-        }
-    );
-
-
-    canvas.addEventListener(
-        "pointermove",
-        event => {
-
-            if (
-                event.pointerId !==
-                lookPointerId
-            ) {
-
-                return;
-
-            }
-
-
-            const dx =
-                event.clientX -
-                lookLastX;
-
-            const dy =
-                event.clientY -
-                lookLastY;
-
-
-            lookLastX =
-                event.clientX;
-
-            lookLastY =
-                event.clientY;
-
-
-            yaw -=
-                dx *
-                SETTINGS.touchSensitivity;
-
-
-            pitch -=
-                dy *
-                SETTINGS.touchSensitivity;
-
-
-            limitPitch();
-
-        }
-    );
-
-
-    const releaseLook = event => {
-
-        if (
-            event.pointerId ===
-            lookPointerId
-        ) {
-
-            lookPointerId = null;
-
-        }
-
-    };
-
-
-    canvas.addEventListener(
-        "pointerup",
-        releaseLook
-    );
-
-    canvas.addEventListener(
-        "pointercancel",
-        releaseLook
-    );
-
-
-    // --------------------------------------------------------
-    // BUTTONS
-    // --------------------------------------------------------
-
-    flashlightButton.addEventListener(
-        "pointerdown",
-        event => {
-
-            event.preventDefault();
-
+        if(e.code === "KeyF"){
             toggleFlashlight();
-
         }
-    );
 
-
-    interactButton.addEventListener(
-        "pointerdown",
-        event => {
-
-            event.preventDefault();
-
+        if(e.code === "KeyE"){
             interact();
+        }
+    }
+);
+
+window.addEventListener(
+    "keyup",
+    e=>{
+        keys[e.code] = false;
+    }
+);
+
+
+/* =========================================================
+   MOUSE LOOK
+========================================================= */
+
+let yaw = 0;
+let pitch = 0;
+
+let mouseLocked = false;
+
+renderer.domElement.addEventListener(
+    "click",
+    ()=>{
+
+        if(window.matchMedia(
+            "(pointer:fine)"
+        ).matches){
+
+            renderer.domElement.requestPointerLock();
+        }
+    }
+);
+
+document.addEventListener(
+    "pointerlockchange",
+    ()=>{
+
+        mouseLocked =
+        document.pointerLockElement ===
+        renderer.domElement;
+
+    }
+);
+
+document.addEventListener(
+    "mousemove",
+    e=>{
+
+        if(!mouseLocked) return;
+
+        yaw -= e.movementX * .0022;
+
+        pitch -= e.movementY * .0022;
+
+        pitch = THREE.MathUtils.clamp(
+            pitch,
+            -1.45,
+            1.45
+        );
+
+    }
+);
+
+
+/* =========================================================
+   MOBILE LOOK
+========================================================= */
+
+let lookTouch = null;
+let lastLookX = 0;
+let lastLookY = 0;
+
+renderer.domElement.addEventListener(
+    "touchstart",
+    e=>{
+
+        for(const t of e.changedTouches){
+
+            if(t.clientX >
+               innerWidth * .42){
+
+                lookTouch = t.identifier;
+
+                lastLookX = t.clientX;
+                lastLookY = t.clientY;
+
+            }
 
         }
-    );
 
+    },
+    {passive:false}
+);
 
-    fullscreenButton.addEventListener(
-        "pointerdown",
-        event => {
+renderer.domElement.addEventListener(
+    "touchmove",
+    e=>{
 
-            event.preventDefault();
+        if(lookTouch === null) return;
 
-            toggleFullscreen();
+        for(const t of e.changedTouches){
+
+            if(t.identifier === lookTouch){
+
+                const dx =
+                t.clientX - lastLookX;
+
+                const dy =
+                t.clientY - lastLookY;
+
+                yaw -= dx * .004;
+
+                pitch -= dy * .004;
+
+                pitch =
+                THREE.MathUtils.clamp(
+                    pitch,
+                    -1.45,
+                    1.45
+                );
+
+                lastLookX = t.clientX;
+                lastLookY = t.clientY;
+            }
+        }
+
+    },
+    {passive:false}
+);
+
+renderer.domElement.addEventListener(
+    "touchend",
+    e=>{
+
+        for(const t of e.changedTouches){
+
+            if(t.identifier === lookTouch){
+                lookTouch = null;
+            }
 
         }
-    );
 
-}
+    },
+    {passive:false}
+);
 
 
-// ============================================================
-// JOYSTICK UPDATE
-// ============================================================
+/* =========================================================
+   JOYSTICK
+========================================================= */
+
+const joystick =
+document.getElementById("joystick");
+
+const stick =
+document.getElementById("stick");
+
+let joyX = 0;
+let joyY = 0;
+
+let joystickActive = false;
 
 function updateJoystick(
-    event
-) {
+    clientX,
+    clientY
+){
 
     const rect =
-        joystickArea.getBoundingClientRect();
-
+    joystick.getBoundingClientRect();
 
     const centerX =
-        rect.left +
-        rect.width / 2;
+    rect.left + rect.width/2;
 
     const centerY =
-        rect.top +
-        rect.height / 2;
-
+    rect.top + rect.height/2;
 
     let dx =
-        event.clientX -
-        centerX;
+    clientX - centerX;
 
     let dy =
-        event.clientY -
-        centerY;
+    clientY - centerY;
+
+    const max =
+    rect.width/2 - 26;
+
+    const distance =
+    Math.sqrt(
+        dx*dx + dy*dy
+    );
+
+    if(distance > max){
+
+        dx =
+        dx / distance * max;
+
+        dy =
+        dy / distance * max;
+
+    }
+
+    joyX = dx / max;
+
+    joyY = dy / max;
+
+    stick.style.transform =
+    `translate(calc(-50% + ${dx}px),
+               calc(-50% + ${dy}px))`;
+}
+
+function resetJoystick(){
+
+    joystickActive = false;
+
+    joyX = 0;
+    joyY = 0;
+
+    stick.style.transform =
+    "translate(-50%,-50%)";
+}
+
+joystick.addEventListener(
+    "pointerdown",
+    e=>{
+
+        joystickActive = true;
+
+        joystick.setPointerCapture(
+            e.pointerId
+        );
+
+        updateJoystick(
+            e.clientX,
+            e.clientY
+        );
+
+    }
+);
+
+joystick.addEventListener(
+    "pointermove",
+    e=>{
+
+        if(!joystickActive) return;
+
+        updateJoystick(
+            e.clientX,
+            e.clientY
+        );
+
+    }
+);
+
+joystick.addEventListener(
+    "pointerup",
+    resetJoystick
+);
+
+joystick.addEventListener(
+    "pointercancel",
+    resetJoystick
+);
 
 
-    const maxDistance = 48;
+/* =========================================================
+   MOVEMENT + COLLISION
+========================================================= */
+
+const playerBox =
+new THREE.Box3();
+
+const tempBox =
+new THREE.Box3();
+
+function canMoveTo(
+    x,
+    z
+){
+
+    const r =
+    player.radius;
+
+    playerBox.min.set(
+        x-r,
+        0.2,
+        z-r
+    );
+
+    playerBox.max.set(
+        x+r,
+        2.1,
+        z+r
+    );
+
+    for(const c of colliders){
+
+        if(!c.mesh.visible)
+            continue;
+
+        tempBox.setFromObject(
+            c.mesh
+        );
+
+        if(
+            playerBox.intersectsBox(
+                tempBox
+            )
+        ){
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+/* =========================================================
+   MOVEMENT
+========================================================= */
+
+const direction =
+new THREE.Vector3();
+
+const forward =
+new THREE.Vector3();
+
+const right =
+new THREE.Vector3();
+
+function updateMovement(
+    delta
+){
+
+    let moveForward = 0;
+    let moveSide = 0;
+
+    /* Keyboard */
+
+    if(keys["KeyW"] ||
+       keys["ArrowUp"]){
+
+        moveForward += 1;
+    }
+
+    if(keys["KeyS"] ||
+       keys["ArrowDown"]){
+
+        moveForward -= 1;
+    }
+
+    if(keys["KeyA"] ||
+       keys["ArrowLeft"]){
+
+        moveSide -= 1;
+    }
+
+    if(keys["KeyD"] ||
+       keys["ArrowRight"]){
+
+        moveSide += 1;
+    }
+
+    /* Mobile */
+
+    if(Math.abs(joyY) > .05){
+
+        moveForward += -joyY;
+    }
+
+    if(Math.abs(joyX) > .05){
+
+        moveSide += joyX;
+    }
+
+    if(
+        moveForward === 0 &&
+        moveSide === 0
+    ){
+        return;
+    }
+
+    const length =
+    Math.sqrt(
+        moveForward*moveForward +
+        moveSide*moveSide
+    );
+
+    moveForward /= length;
+    moveSide /= length;
+
+
+    /* Camera directions */
+
+    forward.set(
+        -Math.sin(yaw),
+        0,
+        -Math.cos(yaw)
+    );
+
+    right.set(
+        Math.cos(yaw),
+        0,
+        -Math.sin(yaw)
+    );
+
+    direction
+        .set(0,0,0)
+        .addScaledVector(
+            forward,
+            moveForward
+        )
+        .addScaledVector(
+            right,
+            moveSide
+        );
 
 
     const distance =
-        Math.sqrt(
-            dx * dx +
-            dy * dy
-        );
-
-
-    if (
-        distance >
-        maxDistance
-    ) {
-
-        const ratio =
-            maxDistance /
-            distance;
-
-        dx *= ratio;
-        dy *= ratio;
-
-    }
-
-
-    joystickX =
-        dx /
-        maxDistance;
-
-
-    joystickY =
-        dy /
-        maxDistance;
-
-
-    joystickKnob.style.transform =
-        `translate(${dx}px, ${dy}px)`;
-
-}
-
-
-// ============================================================
-// PLAYER
-// ============================================================
-
-function updatePlayer(
-    delta
-) {
-
-    const forward =
-        new THREE.Vector3(
-            Math.sin(yaw),
-            0,
-            Math.cos(yaw)
-        );
-
-
-    const right =
-        new THREE.Vector3(
-            Math.cos(yaw),
-            0,
-            -Math.sin(yaw)
-        );
-
-
-    const movement =
-        new THREE.Vector3();
-
-
-    // PC
-
-    if (keys["KeyW"]) {
-        movement.add(forward);
-    }
-
-    if (keys["KeyS"]) {
-        movement.sub(forward);
-    }
-
-    if (keys["KeyD"]) {
-        movement.add(right);
-    }
-
-    if (keys["KeyA"]) {
-        movement.sub(right);
-    }
-
-
-    // MOBILE
-
-    if (
-        Math.abs(joystickY) >
-        0.01
-    ) {
-
-        movement.addScaledVector(
-            forward,
-            -joystickY
-        );
-
-    }
-
-
-    if (
-        Math.abs(joystickX) >
-        0.01
-    ) {
-
-        movement.addScaledVector(
-            right,
-            joystickX
-        );
-
-    }
-
-
-    if (
-        movement.lengthSq() >
-        0.0001
-    ) {
-
-        movement.normalize();
-
-        movement.multiplyScalar(
-            SETTINGS.moveSpeed *
-            delta
-        );
-
-    }
-
-
-    // --------------------------------------------------------
-    // BASIC COLLISION
-    // --------------------------------------------------------
+    player.speed * delta;
 
     const nextX =
-        player.x +
-        movement.x;
+    camera.position.x +
+    direction.x * distance;
 
     const nextZ =
-        player.z +
-        movement.z;
+    camera.position.z +
+    direction.z * distance;
 
 
-    if (
-        nextX >
-        SETTINGS.corridorMinX &&
+    /* X */
 
-        nextX <
-        SETTINGS.corridorMaxX
-    ) {
+    if(
+        canMoveTo(
+            nextX,
+            camera.position.z
+        )
+    ){
 
-        player.x =
-            nextX;
-
+        camera.position.x =
+        nextX;
     }
 
 
-    if (
-        nextZ >
-        SETTINGS.corridorMinZ &&
+    /* Z */
 
-        nextZ <
-        SETTINGS.corridorMaxZ
-    ) {
+    if(
+        canMoveTo(
+            camera.position.x,
+            nextZ
+        )
+    ){
 
-        player.z =
-            nextZ;
-
+        camera.position.z =
+        nextZ;
     }
+}
 
 
-    camera.position.copy(
-        player
-    );
+/* =========================================================
+   CAMERA ROTATION
+========================================================= */
 
+function updateCamera(){
 
     camera.rotation.order =
-        "YXZ";
-
+    "YXZ";
 
     camera.rotation.y =
-        yaw;
-
+    yaw;
 
     camera.rotation.x =
-        pitch;
-
+    pitch;
 }
 
 
-// ============================================================
-// LIMIT LOOK
-// ============================================================
+/* =========================================================
+   INTERACTION
+========================================================= */
 
-function limitPitch() {
+const raycaster =
+new THREE.Raycaster();
 
-    const limit =
-        Math.PI / 2 -
-        0.05;
+const interaction =
+document.getElementById(
+    "interaction"
+);
 
+let currentDoor = null;
 
-    pitch =
-        Math.max(
-            -limit,
-            Math.min(
-                limit,
-                pitch
-            )
-        );
+function checkInteraction(){
 
-}
-
-
-// ============================================================
-// FLASHLIGHT
-// ============================================================
-
-function toggleFlashlight() {
-
-    flashlightOn =
-        !flashlightOn;
-
-
-    flashlight.intensity =
-        flashlightOn
-            ? 18
-            : 0;
-
-
-    flashlightButton.style.opacity =
-        flashlightOn
-            ? "1"
-            : "0.55";
-
-}
-
-
-// ============================================================
-// INTERACTION
-// ============================================================
-
-function interact() {
-
-    console.log(
-        "Interaction pressed"
+    raycaster.setFromCamera(
+        new THREE.Vector2(0,0),
+        camera
     );
 
+    const objects =
+    colliders
+        .filter(c =>
+            c.type === "door"
+        )
+        .map(c => c.mesh);
+
+    const hits =
+    raycaster.intersectObjects(
+        objects,
+        false
+    );
+
+    currentDoor = null;
+
+    if(
+        hits.length &&
+        hits[0].distance < 3
+    ){
+
+        currentDoor =
+        hits[0].object;
+
+        interaction.style.display =
+        "block";
+
+        interaction.textContent =
+        currentDoor.userData.open
+        ? "E — yopish"
+        : "E — ochish";
+
+    }
+    else{
+
+        interaction.style.display =
+        "none";
+    }
 }
 
 
-// ============================================================
-// FULLSCREEN
-// ============================================================
+/* =========================================================
+   DOOR INTERACTION
+========================================================= */
 
-async function toggleFullscreen() {
+function interact(){
 
-    try {
+    if(!currentDoor)
+        return;
 
-        if (
+    const door =
+    currentDoor;
+
+    if(
+        door.userData.open
+    ){
+
+        door.userData.open =
+        false;
+
+        door.rotation.y = 0;
+
+    }
+    else{
+
+        door.userData.open =
+        true;
+
+        door.rotation.y =
+        -Math.PI/2;
+
+    }
+}
+
+
+/* =========================================================
+   FLASHLIGHT
+========================================================= */
+
+function toggleFlashlight(){
+
+    flashlightOn =
+    !flashlightOn;
+
+    flashlight.visible =
+    flashlightOn;
+}
+
+
+/* =========================================================
+   MOBILE BUTTONS
+========================================================= */
+
+document
+.getElementById("flashButton")
+.addEventListener(
+    "pointerdown",
+    e=>{
+        e.preventDefault();
+        toggleFlashlight();
+    }
+);
+
+document
+.getElementById("interactButton")
+.addEventListener(
+    "pointerdown",
+    e=>{
+        e.preventDefault();
+        interact();
+    }
+);
+
+
+/* =========================================================
+   FULLSCREEN + LANDSCAPE
+========================================================= */
+
+async function enterGameMode(){
+
+    try{
+
+        if(
             !document.fullscreenElement
-        ) {
+        ){
 
-            await document.documentElement
+            await document
+                .documentElement
                 .requestFullscreen();
-
-        } else {
-
-            await document.exitFullscreen();
 
         }
 
-    } catch (error) {
+    }catch(e){}
 
-        console.log(
-            "Fullscreen unavailable",
-            error
+    try{
+
+        if(
+            screen.orientation &&
+            screen.orientation.lock
+        ){
+
+            await screen.orientation.lock(
+                "landscape"
+            );
+
+        }
+
+    }catch(e){}
+
+}
+
+
+/* Fullscreen button */
+
+document
+.getElementById("fullscreenButton")
+.addEventListener(
+    "pointerdown",
+    e=>{
+
+        e.preventDefault();
+
+        enterGameMode();
+
+    }
+);
+
+
+/* First touch */
+
+window.addEventListener(
+    "touchstart",
+    ()=>{
+        enterGameMode();
+    },
+    {
+        once:true,
+        passive:true
+    }
+);
+
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+window.addEventListener(
+    "resize",
+    ()=>{
+
+        camera.aspect =
+        innerWidth / innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            innerWidth,
+            innerHeight,
+            false
         );
 
     }
-
-}
-
-
-// ============================================================
-// RESIZE
-// ============================================================
-
-function resize() {
-
-    camera.aspect =
-        window.innerWidth /
-        window.innerHeight;
+);
 
 
-    camera.updateProjectionMatrix();
+/* =========================================================
+   GAME LOOP
+========================================================= */
 
+const clock =
+new THREE.Clock();
 
-    renderer.setPixelRatio(
-        Math.min(
-            window.devicePixelRatio || 1,
-            SETTINGS.maxPixelRatio
-        )
-    );
-
-
-    renderer.setSize(
-        window.innerWidth,
-        window.innerHeight
-    );
-
-}
-
-
-// ============================================================
-// GAME LOOP
-// ============================================================
-
-function animate() {
+function animate(){
 
     requestAnimationFrame(
         animate
     );
 
-
     const delta =
-        Math.min(
-            clock.getDelta(),
-            0.05
-        );
+    Math.min(
+        clock.getDelta(),
+        .05
+    );
 
-
-    updatePlayer(
+    updateMovement(
         delta
     );
 
+    updateCamera();
+
+    checkInteraction();
 
     renderer.render(
         scene,
         camera
     );
-
 }
 
-
-// ============================================================
-// ERROR
-// ============================================================
-
-function showError(
-    error
-) {
-
-    console.error(
-        error
-    );
+animate();
 
 
-    loading.style.display =
-        "none";
+/* =========================================================
+   MOBILE START
+========================================================= */
 
+if(
+    window.matchMedia(
+        "(pointer:coarse)"
+    ).matches
+){
 
-    errorBox.style.display =
-        "block";
-
-
-    errorBox.textContent =
-        "MAKTAB yuklanishida xatolik: " +
-        error.message;
+    enterGameMode();
 
 }
-
-
-// ============================================================
-// START
-// ============================================================
-
-init();
 
 </script>
 
