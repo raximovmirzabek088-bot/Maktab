@@ -2,7 +2,11 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
 
     <title>MAKTAB</title>
 
@@ -15,6 +19,8 @@
             height: 100%;
             overflow: hidden;
             background: #000;
+            touch-action: none;
+            user-select: none;
         }
 
         body {
@@ -22,9 +28,38 @@
         }
 
         #game {
+            position: fixed;
+            inset: 0;
             width: 100%;
             height: 100%;
             display: block;
+        }
+
+        #loading {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #050505;
+            color: #ddd;
+            font-size: 18px;
+            z-index: 10;
+        }
+
+        #error {
+            position: fixed;
+            left: 20px;
+            right: 20px;
+            top: 20px;
+            padding: 15px;
+            background: #250000;
+            color: #fff;
+            border: 1px solid #660000;
+            z-index: 20;
+            display: none;
+            font-size: 14px;
+            line-height: 1.5;
         }
     </style>
 </head>
@@ -33,39 +68,1015 @@
 
 <canvas id="game"></canvas>
 
+<div id="loading">
+    MAKTAB yuklanmoqda...
+</div>
+
+<div id="error"></div>
+
 <script type="module">
-    const canvas = document.getElementById("game");
 
-    const ctx = canvas.getContext("2d");
+import * as THREE from
+    "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 
-    function resize() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-        canvas.width = Math.floor(window.innerWidth * dpr);
-        canvas.height = Math.floor(window.innerHeight * dpr);
+// ============================================================
+// BASIC SETUP
+// ============================================================
 
-        canvas.style.width = window.innerWidth + "px";
-        canvas.style.height = window.innerHeight + "px";
+const canvas = document.getElementById("game");
+const loading = document.getElementById("loading");
+const errorBox = document.getElementById("error");
 
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+let scene;
+let camera;
+let renderer;
+
+let clock;
+
+let player;
+let velocity;
+
+const keys = {};
+
+let yaw = 0;
+let pitch = 0;
+
+let mouseLocked = false;
+
+
+// ============================================================
+// GAME SETTINGS
+// ============================================================
+
+const SETTINGS = {
+
+    playerHeight: 1.7,
+
+    playerRadius: 0.32,
+
+    moveSpeed: 3.2,
+
+    mouseSensitivity: 0.0022,
+
+    gravity: 18,
+
+    maxPixelRatio: 1.5
+
+};
+
+
+// ============================================================
+// INITIALIZE
+// ============================================================
+
+function init() {
+
+    try {
+
+        // ----------------------------------------------------
+        // SCENE
+        // ----------------------------------------------------
+
+        scene = new THREE.Scene();
+
+        scene.background = new THREE.Color(0x08090b);
+
+        scene.fog = new THREE.Fog(
+            0x08090b,
+            8,
+            45
+        );
+
+
+        // ----------------------------------------------------
+        // CAMERA
+        // ----------------------------------------------------
+
+        camera = new THREE.PerspectiveCamera(
+            70,
+            window.innerWidth / window.innerHeight,
+            0.05,
+            100
+        );
+
+        camera.position.set(
+            0,
+            SETTINGS.playerHeight,
+            8
+        );
+
+
+        // ----------------------------------------------------
+        // RENDERER
+        // ----------------------------------------------------
+
+        renderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            antialias: false,
+            powerPreference: "low-power"
+        });
+
+        renderer.setPixelRatio(
+            Math.min(
+                window.devicePixelRatio || 1,
+                SETTINGS.maxPixelRatio
+            )
+        );
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+        renderer.shadowMap.enabled = false;
+
+        renderer.outputColorSpace =
+            THREE.SRGBColorSpace;
+
+
+        // ----------------------------------------------------
+        // LIGHTING
+        // ----------------------------------------------------
+
+        const ambientLight =
+            new THREE.HemisphereLight(
+                0x7d8795,
+                0x151515,
+                1.2
+            );
+
+        scene.add(ambientLight);
+
+
+        const ceilingLight =
+            new THREE.PointLight(
+                0xc8d5ff,
+                8,
+                12,
+                2
+            );
+
+        ceilingLight.position.set(
+            0,
+            3.3,
+            2
+        );
+
+        scene.add(ceilingLight);
+
+
+        const secondLight =
+            new THREE.PointLight(
+                0xaebbd0,
+                5,
+                12,
+                2
+            );
+
+        secondLight.position.set(
+            0,
+            3.3,
+            -10
+        );
+
+        scene.add(secondLight);
+
+
+        const thirdLight =
+            new THREE.PointLight(
+                0x9aa8bd,
+                4,
+                12,
+                2
+            );
+
+        thirdLight.position.set(
+            0,
+            3.3,
+            -22
+        );
+
+        scene.add(thirdLight);
+
+
+        // ----------------------------------------------------
+        // MATERIALS
+        // ----------------------------------------------------
+
+        const floorMaterial =
+            new THREE.MeshStandardMaterial({
+                color: 0x4a4a47,
+                roughness: 0.9
+            });
+
+
+        const wallMaterial =
+            new THREE.MeshStandardMaterial({
+                color: 0x77736d,
+                roughness: 0.95
+            });
+
+
+        const ceilingMaterial =
+            new THREE.MeshStandardMaterial({
+                color: 0x6b6b67,
+                roughness: 1
+            });
+
+
+        const doorMaterial =
+            new THREE.MeshStandardMaterial({
+                color: 0x3d3029,
+                roughness: 0.9
+            });
+
+
+        const darkMaterial =
+            new THREE.MeshStandardMaterial({
+                color: 0x202020,
+                roughness: 1
+            });
+
+
+        // ----------------------------------------------------
+        // FLOOR
+        // ----------------------------------------------------
+
+        createBox(
+            8,
+            0.15,
+            50,
+            0,
+            -0.075,
+            -16,
+            floorMaterial
+        );
+
+
+        // ----------------------------------------------------
+        // CEILING
+        // ----------------------------------------------------
+
+        createBox(
+            8,
+            0.15,
+            50,
+            0,
+            3.7,
+            -16,
+            ceilingMaterial
+        );
+
+
+        // ----------------------------------------------------
+        // LEFT WALL
+        // ----------------------------------------------------
+
+        createBox(
+            0.25,
+            3.7,
+            50,
+            -4,
+            1.85,
+            -16,
+            wallMaterial
+        );
+
+
+        // ----------------------------------------------------
+        // RIGHT WALL
+        // ----------------------------------------------------
+
+        createBox(
+            0.25,
+            3.7,
+            50,
+            4,
+            1.85,
+            -16,
+            wallMaterial
+        );
+
+
+        // ----------------------------------------------------
+        // END WALL
+        // ----------------------------------------------------
+
+        createBox(
+            8,
+            3.7,
+            0.25,
+            0,
+            1.85,
+            -41,
+            wallMaterial
+        );
+
+
+        // ----------------------------------------------------
+        // CLASSROOM DOORS
+        // ----------------------------------------------------
+
+        createDoor(
+            -3.82,
+            -3,
+            doorMaterial
+        );
+
+        createDoor(
+            3.82,
+            -9,
+            doorMaterial
+        );
+
+        createDoor(
+            -3.82,
+            -16,
+            doorMaterial
+        );
+
+        createDoor(
+            3.82,
+            -24,
+            doorMaterial
+        );
+
+        createDoor(
+            -3.82,
+            -31,
+            doorMaterial
+        );
+
+
+        // ----------------------------------------------------
+        // DOOR FRAMES
+        // ----------------------------------------------------
+
+        createDoorFrame(
+            -3.72,
+            -3,
+            wallMaterial
+        );
+
+        createDoorFrame(
+            3.72,
+            -9,
+            wallMaterial
+        );
+
+        createDoorFrame(
+            -3.72,
+            -16,
+            wallMaterial
+        );
+
+        createDoorFrame(
+            3.72,
+            -24,
+            wallMaterial
+        );
+
+        createDoorFrame(
+            -3.72,
+            -31,
+            wallMaterial
+        );
+
+
+        // ----------------------------------------------------
+        // WINDOWS
+        // ----------------------------------------------------
+
+        createWindow(
+            -3.82,
+            -6,
+            wallMaterial
+        );
+
+        createWindow(
+            -3.82,
+            -12,
+            wallMaterial
+        );
+
+        createWindow(
+            -3.82,
+            -21,
+            wallMaterial
+        );
+
+        createWindow(
+            -3.82,
+            -28,
+            wallMaterial
+        );
+
+
+        // ----------------------------------------------------
+        // SIMPLE CEILING LAMPS
+        // ----------------------------------------------------
+
+        createLamp(0, 2);
+        createLamp(0, -5);
+        createLamp(0, -12);
+        createLamp(0, -19);
+        createLamp(0, -26);
+        createLamp(0, -33);
+
+
+        // ----------------------------------------------------
+        // SOME OLD DESKS
+        // ----------------------------------------------------
+
+        createDesk(
+            -2.2,
+            -7
+        );
+
+        createDesk(
+            2.2,
+            -13
+        );
+
+        createDesk(
+            -2.2,
+            -20
+        );
+
+        createDesk(
+            2.2,
+            -27
+        );
+
+
+        // ----------------------------------------------------
+        // PLAYER
+        // ----------------------------------------------------
+
+        player = new THREE.Vector3(
+            0,
+            SETTINGS.playerHeight,
+            8
+        );
+
+        velocity = new THREE.Vector3(
+            0,
+            0,
+            0
+        );
+
+
+        // ----------------------------------------------------
+        // INPUT
+        // ----------------------------------------------------
+
+        setupKeyboard();
+        setupMouse();
+
+
+        // ----------------------------------------------------
+        // RESIZE
+        // ----------------------------------------------------
+
+        window.addEventListener(
+            "resize",
+            onResize
+        );
+
+
+        // ----------------------------------------------------
+        // CLOCK
+        // ----------------------------------------------------
+
+        clock = new THREE.Clock();
+
+
+        // ----------------------------------------------------
+        // START
+        // ----------------------------------------------------
+
+        loading.style.display = "none";
+
+        animate();
+
+    } catch (error) {
+
+        showError(error);
+
     }
 
-    window.addEventListener("resize", resize);
+}
 
-    resize();
 
-    ctx.fillStyle = "#050505";
-    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+// ============================================================
+// CREATE BOX
+// ============================================================
 
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "24px Arial";
-    ctx.textAlign = "center";
+function createBox(
+    width,
+    height,
+    depth,
+    x,
+    y,
+    z,
+    material
+) {
 
-    ctx.fillText(
-        "MAKTAB",
-        window.innerWidth / 2,
-        window.innerHeight / 2
+    const geometry =
+        new THREE.BoxGeometry(
+            width,
+            height,
+            depth
+        );
+
+    const mesh =
+        new THREE.Mesh(
+            geometry,
+            material
+        );
+
+    mesh.position.set(
+        x,
+        y,
+        z
     );
+
+    scene.add(mesh);
+
+    return mesh;
+
+}
+
+
+// ============================================================
+// DOOR
+// ============================================================
+
+function createDoor(
+    x,
+    z,
+    material
+) {
+
+    return createBox(
+        0.15,
+        2.4,
+        1.4,
+        x,
+        1.2,
+        z,
+        material
+    );
+
+}
+
+
+// ============================================================
+// DOOR FRAME
+// ============================================================
+
+function createDoorFrame(
+    x,
+    z,
+    material
+) {
+
+    const side1 =
+        createBox(
+            0.12,
+            2.8,
+            0.12,
+            x,
+            1.4,
+            z - 0.78,
+            material
+        );
+
+    const side2 =
+        createBox(
+            0.12,
+            2.8,
+            0.12,
+            x,
+            1.4,
+            z + 0.78,
+            material
+        );
+
+    const top =
+        createBox(
+            0.12,
+            0.12,
+            1.68,
+            x,
+            2.78,
+            z,
+            material
+        );
+
+}
+
+
+// ============================================================
+// WINDOW
+// ============================================================
+
+function createWindow(
+    x,
+    z,
+    material
+) {
+
+    const frame =
+        createBox(
+            0.08,
+            1.8,
+            1.7,
+            x,
+            1.8,
+            z,
+            material
+        );
+
+
+    const glassMaterial =
+        new THREE.MeshStandardMaterial({
+            color: 0x18232b,
+            roughness: 0.3,
+            metalness: 0.1
+        });
+
+
+    createBox(
+        0.04,
+        1.4,
+        1.25,
+        x + (x < 0 ? 0.04 : -0.04),
+        1.8,
+        z,
+        glassMaterial
+    );
+
+}
+
+
+// ============================================================
+// LAMP
+// ============================================================
+
+function createLamp(
+    x,
+    z
+) {
+
+    const lampMaterial =
+        new THREE.MeshStandardMaterial({
+            color: 0xd9d9d0,
+            emissive: 0x777777,
+            emissiveIntensity: 0.4
+        });
+
+
+    createBox(
+        1.4,
+        0.08,
+        0.25,
+        x,
+        3.55,
+        z,
+        lampMaterial
+    );
+
+}
+
+
+// ============================================================
+// DESK
+// ============================================================
+
+function createDesk(
+    x,
+    z
+) {
+
+    const wood =
+        new THREE.MeshStandardMaterial({
+            color: 0x4a3327,
+            roughness: 0.95
+        });
+
+
+    createBox(
+        1.1,
+        0.1,
+        0.65,
+        x,
+        0.9,
+        z,
+        wood
+    );
+
+
+    const legPositions = [
+        [-0.42, -0.22],
+        [0.42, -0.22],
+        [-0.42, 0.22],
+        [0.42, 0.22]
+    ];
+
+
+    for (const position of legPositions) {
+
+        createBox(
+            0.08,
+            0.9,
+            0.08,
+            x + position[0],
+            0.45,
+            z + position[1],
+            wood
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// KEYBOARD
+// ============================================================
+
+function setupKeyboard() {
+
+    window.addEventListener(
+        "keydown",
+        event => {
+
+            keys[event.code] = true;
+
+        }
+    );
+
+
+    window.addEventListener(
+        "keyup",
+        event => {
+
+            keys[event.code] = false;
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// MOUSE
+// ============================================================
+
+function setupMouse() {
+
+    canvas.addEventListener(
+        "click",
+        () => {
+
+            if (!mouseLocked) {
+
+                canvas.requestPointerLock();
+
+            }
+
+        }
+    );
+
+
+    document.addEventListener(
+        "pointerlockchange",
+        () => {
+
+            mouseLocked =
+                document.pointerLockElement === canvas;
+
+        }
+    );
+
+
+    document.addEventListener(
+        "mousemove",
+        event => {
+
+            if (!mouseLocked) {
+                return;
+            }
+
+
+            yaw -=
+                event.movementX *
+                SETTINGS.mouseSensitivity;
+
+
+            pitch -=
+                event.movementY *
+                SETTINGS.mouseSensitivity;
+
+
+            const maxPitch =
+                Math.PI / 2 - 0.05;
+
+
+            pitch =
+                Math.max(
+                    -maxPitch,
+                    Math.min(
+                        maxPitch,
+                        pitch
+                    )
+                );
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// PLAYER MOVEMENT
+// ============================================================
+
+function updatePlayer(delta) {
+
+    const forward =
+        new THREE.Vector3(
+            Math.sin(yaw),
+            0,
+            Math.cos(yaw)
+        );
+
+
+    const right =
+        new THREE.Vector3(
+            Math.cos(yaw),
+            0,
+            -Math.sin(yaw)
+        );
+
+
+    const movement =
+        new THREE.Vector3();
+
+
+    if (keys["KeyW"]) {
+        movement.add(forward);
+    }
+
+    if (keys["KeyS"]) {
+        movement.sub(forward);
+    }
+
+    if (keys["KeyD"]) {
+        movement.add(right);
+    }
+
+    if (keys["KeyA"]) {
+        movement.sub(right);
+    }
+
+
+    if (movement.lengthSq() > 0) {
+
+        movement.normalize();
+
+        movement.multiplyScalar(
+            SETTINGS.moveSpeed * delta
+        );
+
+    }
+
+
+    const nextX =
+        player.x + movement.x;
+
+    const nextZ =
+        player.z + movement.z;
+
+
+    // Corridor boundaries
+
+    if (
+        nextX > -3.55 &&
+        nextX < 3.55
+    ) {
+
+        player.x = nextX;
+
+    }
+
+
+    if (
+        nextZ < 7.6 &&
+        nextZ > -40.2
+    ) {
+
+        player.z = nextZ;
+
+    }
+
+
+    camera.position.copy(player);
+
+
+    camera.rotation.order = "YXZ";
+
+    camera.rotation.y = yaw;
+
+    camera.rotation.x = pitch;
+
+}
+
+
+// ============================================================
+// RESIZE
+// ============================================================
+
+function onResize() {
+
+    camera.aspect =
+        window.innerWidth /
+        window.innerHeight;
+
+
+    camera.updateProjectionMatrix();
+
+
+    renderer.setPixelRatio(
+        Math.min(
+            window.devicePixelRatio || 1,
+            SETTINGS.maxPixelRatio
+        )
+    );
+
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+
+}
+
+
+// ============================================================
+// MAIN LOOP
+// ============================================================
+
+function animate() {
+
+    requestAnimationFrame(animate);
+
+
+    const delta =
+        Math.min(
+            clock.getDelta(),
+            0.05
+        );
+
+
+    updatePlayer(delta);
+
+
+    renderer.render(
+        scene,
+        camera
+    );
+
+}
+
+
+// ============================================================
+// ERROR
+// ============================================================
+
+function showError(error) {
+
+    console.error(error);
+
+    loading.style.display = "none";
+
+    errorBox.style.display = "block";
+
+    errorBox.textContent =
+        "MAKTAB yuklanishida xatolik: " +
+        error.message;
+
+}
+
+
+// ============================================================
+// START
+// ============================================================
+
+init();
+
 </script>
 
 </body>
