@@ -11,6 +11,11 @@
     <title>MAKTAB</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         html,
         body {
             margin: 0;
@@ -35,6 +40,10 @@
             display: block;
         }
 
+        /* =========================
+           LOADING
+        ========================= */
+
         #loading {
             position: fixed;
             inset: 0;
@@ -44,8 +53,12 @@
             background: #050505;
             color: #ddd;
             font-size: 18px;
-            z-index: 10;
+            z-index: 100;
         }
+
+        /* =========================
+           ERROR
+        ========================= */
 
         #error {
             position: fixed;
@@ -56,11 +69,183 @@
             background: #250000;
             color: #fff;
             border: 1px solid #660000;
-            z-index: 20;
+            z-index: 200;
             display: none;
             font-size: 14px;
             line-height: 1.5;
         }
+
+        /* =========================
+           CROSSHAIR
+        ========================= */
+
+        #crosshair {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        #crosshair::before,
+        #crosshair::after {
+            content: "";
+            position: absolute;
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        #crosshair::before {
+            width: 8px;
+            height: 1px;
+            left: 0;
+            top: 3px;
+        }
+
+        #crosshair::after {
+            width: 1px;
+            height: 8px;
+            left: 3px;
+            top: 0;
+        }
+
+        /* =========================
+           MOBILE UI
+        ========================= */
+
+        #mobile-ui {
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+            pointer-events: none;
+            display: none;
+        }
+
+        .mobile-button {
+            position: absolute;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+
+            border: 1px solid rgba(255,255,255,0.28);
+
+            background: rgba(20,20,20,0.28);
+
+            color: rgba(255,255,255,0.9);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 22px;
+
+            backdrop-filter: blur(4px);
+
+            -webkit-backdrop-filter: blur(4px);
+
+            pointer-events: auto;
+
+            touch-action: none;
+        }
+
+        .mobile-button:active {
+            background: rgba(255,255,255,0.18);
+            transform: scale(0.94);
+        }
+
+        #flashlight-button {
+            right: 24px;
+            bottom: 120px;
+        }
+
+        #interact-button {
+            right: 92px;
+            bottom: 58px;
+        }
+
+        #fullscreen-button {
+            right: 24px;
+            top: 24px;
+        }
+
+        /* =========================
+           JOYSTICK
+        ========================= */
+
+        #joystick-area {
+            position: absolute;
+
+            left: 20px;
+            bottom: 25px;
+
+            width: 145px;
+            height: 145px;
+
+            pointer-events: auto;
+
+            touch-action: none;
+        }
+
+        #joystick-base {
+            position: absolute;
+
+            left: 15px;
+            top: 15px;
+
+            width: 115px;
+            height: 115px;
+
+            border-radius: 50%;
+
+            border: 1px solid rgba(255,255,255,0.22);
+
+            background: rgba(20,20,20,0.20);
+
+            backdrop-filter: blur(4px);
+
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        #joystick-knob {
+            position: absolute;
+
+            left: 43px;
+            top: 43px;
+
+            width: 58px;
+            height: 58px;
+
+            border-radius: 50%;
+
+            background: rgba(255,255,255,0.16);
+
+            border: 1px solid rgba(255,255,255,0.35);
+
+            pointer-events: none;
+        }
+
+        /* =========================
+           MOBILE ONLY
+        ========================= */
+
+        @media (pointer: coarse) {
+
+            #mobile-ui {
+                display: block;
+            }
+
+        }
+
+        @media (pointer: fine) {
+
+            #mobile-ui {
+                display: none;
+            }
+
+        }
+
     </style>
 </head>
 
@@ -74,6 +259,49 @@
 
 <div id="error"></div>
 
+<div id="crosshair"></div>
+
+<!-- =========================
+     MOBILE CONTROLS
+========================= -->
+
+<div id="mobile-ui">
+
+    <div id="joystick-area">
+        <div id="joystick-base"></div>
+        <div id="joystick-knob"></div>
+    </div>
+
+    <button
+        id="flashlight-button"
+        class="mobile-button"
+        type="button"
+        aria-label="Flashlight"
+    >
+        🔦
+    </button>
+
+    <button
+        id="interact-button"
+        class="mobile-button"
+        type="button"
+        aria-label="Interact"
+    >
+        E
+    </button>
+
+    <button
+        id="fullscreen-button"
+        class="mobile-button"
+        type="button"
+        aria-label="Fullscreen"
+    >
+        ⛶
+    </button>
+
+</div>
+
+
 <script type="module">
 
 import * as THREE from
@@ -81,101 +309,171 @@ import * as THREE from
 
 
 // ============================================================
-// BASIC SETUP
+// DOM
 // ============================================================
 
-const canvas = document.getElementById("game");
-const loading = document.getElementById("loading");
-const errorBox = document.getElementById("error");
+const canvas =
+    document.getElementById("game");
+
+const loading =
+    document.getElementById("loading");
+
+const errorBox =
+    document.getElementById("error");
+
+const flashlightButton =
+    document.getElementById("flashlight-button");
+
+const interactButton =
+    document.getElementById("interact-button");
+
+const fullscreenButton =
+    document.getElementById("fullscreen-button");
+
+const joystickArea =
+    document.getElementById("joystick-area");
+
+const joystickKnob =
+    document.getElementById("joystick-knob");
+
+
+// ============================================================
+// THREE.JS
+// ============================================================
 
 let scene;
 let camera;
 let renderer;
-
 let clock;
 
-let player;
-let velocity;
 
-const keys = {};
+// ============================================================
+// PLAYER
+// ============================================================
+
+const player =
+    new THREE.Vector3(
+        0,
+        1.7,
+        8
+    );
 
 let yaw = 0;
 let pitch = 0;
 
-let mouseLocked = false;
+const keys = {};
 
 
 // ============================================================
-// GAME SETTINGS
+// SETTINGS
 // ============================================================
 
 const SETTINGS = {
-
-    playerHeight: 1.7,
-
-    playerRadius: 0.32,
 
     moveSpeed: 3.2,
 
     mouseSensitivity: 0.0022,
 
-    gravity: 18,
+    touchSensitivity: 0.004,
 
-    maxPixelRatio: 1.5
+    maxPixelRatio: 1.5,
+
+    playerHeight: 1.7,
+
+    corridorMinX: -3.55,
+
+    corridorMaxX: 3.55,
+
+    corridorMinZ: -40.2,
+
+    corridorMaxZ: 7.6
 
 };
 
 
 // ============================================================
-// INITIALIZE
+// MOBILE INPUT
+// ============================================================
+
+let joystickX = 0;
+let joystickY = 0;
+
+let joystickPointerId = null;
+
+let lookPointerId = null;
+
+let lookLastX = 0;
+let lookLastY = 0;
+
+
+// ============================================================
+// FLASHLIGHT
+// ============================================================
+
+let flashlightOn = false;
+
+let flashlight;
+
+
+// ============================================================
+// INIT
 // ============================================================
 
 function init() {
 
     try {
 
-        // ----------------------------------------------------
+        // ====================================================
         // SCENE
-        // ----------------------------------------------------
+        // ====================================================
 
-        scene = new THREE.Scene();
+        scene =
+            new THREE.Scene();
 
-        scene.background = new THREE.Color(0x08090b);
+        scene.background =
+            new THREE.Color(
+                0x08090b
+            );
 
-        scene.fog = new THREE.Fog(
-            0x08090b,
-            8,
-            45
-        );
+        scene.fog =
+            new THREE.Fog(
+                0x08090b,
+                8,
+                45
+            );
 
 
-        // ----------------------------------------------------
+        // ====================================================
         // CAMERA
-        // ----------------------------------------------------
+        // ====================================================
 
-        camera = new THREE.PerspectiveCamera(
-            70,
-            window.innerWidth / window.innerHeight,
-            0.05,
-            100
-        );
+        camera =
+            new THREE.PerspectiveCamera(
+                70,
+                window.innerWidth /
+                window.innerHeight,
+                0.05,
+                100
+            );
 
-        camera.position.set(
-            0,
-            SETTINGS.playerHeight,
-            8
-        );
+        camera.position.copy(player);
 
 
-        // ----------------------------------------------------
+        // ====================================================
         // RENDERER
-        // ----------------------------------------------------
+        // ====================================================
 
-        renderer = new THREE.WebGLRenderer({
-            canvas: canvas,
-            antialias: false,
-            powerPreference: "low-power"
-        });
+        renderer =
+            new THREE.WebGLRenderer({
+
+                canvas,
+
+                antialias: false,
+
+                powerPreference:
+                    "low-power"
+
+            });
 
         renderer.setPixelRatio(
             Math.min(
@@ -189,98 +487,71 @@ function init() {
             window.innerHeight
         );
 
-        renderer.shadowMap.enabled = false;
-
         renderer.outputColorSpace =
             THREE.SRGBColorSpace;
 
 
-        // ----------------------------------------------------
+        // ====================================================
         // LIGHTING
-        // ----------------------------------------------------
+        // ====================================================
 
-        const ambientLight =
+        const ambient =
             new THREE.HemisphereLight(
                 0x7d8795,
                 0x151515,
-                1.2
+                1.15
             );
 
-        scene.add(ambientLight);
+        scene.add(ambient);
 
 
-        const ceilingLight =
-            new THREE.PointLight(
-                0xc8d5ff,
-                8,
-                12,
-                2
-            );
-
-        ceilingLight.position.set(
+        createCeilingLight(
             0,
-            3.3,
             2
         );
 
-        scene.add(ceilingLight);
-
-
-        const secondLight =
-            new THREE.PointLight(
-                0xaebbd0,
-                5,
-                12,
-                2
-            );
-
-        secondLight.position.set(
+        createCeilingLight(
             0,
-            3.3,
-            -10
+            -6
         );
 
-        scene.add(secondLight);
-
-
-        const thirdLight =
-            new THREE.PointLight(
-                0x9aa8bd,
-                4,
-                12,
-                2
-            );
-
-        thirdLight.position.set(
+        createCeilingLight(
             0,
-            3.3,
+            -14
+        );
+
+        createCeilingLight(
+            0,
             -22
         );
 
-        scene.add(thirdLight);
+        createCeilingLight(
+            0,
+            -30
+        );
 
 
-        // ----------------------------------------------------
+        // ====================================================
         // MATERIALS
-        // ----------------------------------------------------
+        // ====================================================
 
         const floorMaterial =
             new THREE.MeshStandardMaterial({
                 color: 0x4a4a47,
-                roughness: 0.9
+                roughness: 0.92
             });
 
 
         const wallMaterial =
             new THREE.MeshStandardMaterial({
                 color: 0x77736d,
-                roughness: 0.95
+                roughness: 0.96
             });
 
 
         const ceilingMaterial =
             new THREE.MeshStandardMaterial({
-                color: 0x6b6b67,
+                color: 0x62625e,
                 roughness: 1
             });
 
@@ -288,20 +559,13 @@ function init() {
         const doorMaterial =
             new THREE.MeshStandardMaterial({
                 color: 0x3d3029,
-                roughness: 0.9
+                roughness: 0.92
             });
 
 
-        const darkMaterial =
-            new THREE.MeshStandardMaterial({
-                color: 0x202020,
-                roughness: 1
-            });
-
-
-        // ----------------------------------------------------
+        // ====================================================
         // FLOOR
-        // ----------------------------------------------------
+        // ====================================================
 
         createBox(
             8,
@@ -314,9 +578,9 @@ function init() {
         );
 
 
-        // ----------------------------------------------------
+        // ====================================================
         // CEILING
-        // ----------------------------------------------------
+        // ====================================================
 
         createBox(
             8,
@@ -329,9 +593,9 @@ function init() {
         );
 
 
-        // ----------------------------------------------------
-        // LEFT WALL
-        // ----------------------------------------------------
+        // ====================================================
+        // WALLS
+        // ====================================================
 
         createBox(
             0.25,
@@ -343,11 +607,6 @@ function init() {
             wallMaterial
         );
 
-
-        // ----------------------------------------------------
-        // RIGHT WALL
-        // ----------------------------------------------------
-
         createBox(
             0.25,
             3.7,
@@ -357,11 +616,6 @@ function init() {
             -16,
             wallMaterial
         );
-
-
-        // ----------------------------------------------------
-        // END WALL
-        // ----------------------------------------------------
 
         createBox(
             8,
@@ -374,9 +628,9 @@ function init() {
         );
 
 
-        // ----------------------------------------------------
-        // CLASSROOM DOORS
-        // ----------------------------------------------------
+        // ====================================================
+        // DOORS
+        // ====================================================
 
         createDoor(
             -3.82,
@@ -409,85 +663,34 @@ function init() {
         );
 
 
-        // ----------------------------------------------------
-        // DOOR FRAMES
-        // ----------------------------------------------------
-
-        createDoorFrame(
-            -3.72,
-            -3,
-            wallMaterial
-        );
-
-        createDoorFrame(
-            3.72,
-            -9,
-            wallMaterial
-        );
-
-        createDoorFrame(
-            -3.72,
-            -16,
-            wallMaterial
-        );
-
-        createDoorFrame(
-            3.72,
-            -24,
-            wallMaterial
-        );
-
-        createDoorFrame(
-            -3.72,
-            -31,
-            wallMaterial
-        );
-
-
-        // ----------------------------------------------------
+        // ====================================================
         // WINDOWS
-        // ----------------------------------------------------
+        // ====================================================
 
         createWindow(
             -3.82,
-            -6,
-            wallMaterial
+            -6
         );
 
         createWindow(
             -3.82,
-            -12,
-            wallMaterial
+            -12
         );
 
         createWindow(
             -3.82,
-            -21,
-            wallMaterial
+            -21
         );
 
         createWindow(
             -3.82,
-            -28,
-            wallMaterial
+            -28
         );
 
 
-        // ----------------------------------------------------
-        // SIMPLE CEILING LAMPS
-        // ----------------------------------------------------
-
-        createLamp(0, 2);
-        createLamp(0, -5);
-        createLamp(0, -12);
-        createLamp(0, -19);
-        createLamp(0, -26);
-        createLamp(0, -33);
-
-
-        // ----------------------------------------------------
-        // SOME OLD DESKS
-        // ----------------------------------------------------
+        // ====================================================
+        // DESKS
+        // ====================================================
 
         createDesk(
             -2.2,
@@ -510,55 +713,78 @@ function init() {
         );
 
 
-        // ----------------------------------------------------
-        // PLAYER
-        // ----------------------------------------------------
+        // ====================================================
+        // FLASHLIGHT
+        // ====================================================
 
-        player = new THREE.Vector3(
-            0,
-            SETTINGS.playerHeight,
-            8
-        );
+        flashlight =
+            new THREE.SpotLight(
+                0xffffff,
+                0,
+                18,
+                Math.PI / 7,
+                0.55,
+                1.4
+            );
 
-        velocity = new THREE.Vector3(
+        flashlight.position.set(
             0,
             0,
             0
         );
 
+        flashlight.target.position.set(
+            0,
+            0,
+            -5
+        );
 
-        // ----------------------------------------------------
+        camera.add(
+            flashlight
+        );
+
+        camera.add(
+            flashlight.target
+        );
+
+        scene.add(camera);
+
+
+        // ====================================================
         // INPUT
-        // ----------------------------------------------------
+        // ====================================================
 
         setupKeyboard();
+
         setupMouse();
 
+        setupMobileControls();
 
-        // ----------------------------------------------------
+
+        // ====================================================
         // RESIZE
-        // ----------------------------------------------------
+        // ====================================================
 
         window.addEventListener(
             "resize",
-            onResize
+            resize
         );
 
 
-        // ----------------------------------------------------
+        // ====================================================
         // CLOCK
-        // ----------------------------------------------------
+        // ====================================================
 
-        clock = new THREE.Clock();
+        clock =
+            new THREE.Clock();
 
 
-        // ----------------------------------------------------
-        // START
-        // ----------------------------------------------------
+        loading.style.display =
+            "none";
 
-        loading.style.display = "none";
 
         animate();
+
 
     } catch (error) {
 
@@ -570,7 +796,7 @@ function init() {
 
 
 // ============================================================
-// CREATE BOX
+// BOX
 // ============================================================
 
 function createBox(
@@ -619,7 +845,7 @@ function createDoor(
     material
 ) {
 
-    return createBox(
+    createBox(
         0.15,
         2.4,
         1.4,
@@ -633,78 +859,18 @@ function createDoor(
 
 
 // ============================================================
-// DOOR FRAME
-// ============================================================
-
-function createDoorFrame(
-    x,
-    z,
-    material
-) {
-
-    const side1 =
-        createBox(
-            0.12,
-            2.8,
-            0.12,
-            x,
-            1.4,
-            z - 0.78,
-            material
-        );
-
-    const side2 =
-        createBox(
-            0.12,
-            2.8,
-            0.12,
-            x,
-            1.4,
-            z + 0.78,
-            material
-        );
-
-    const top =
-        createBox(
-            0.12,
-            0.12,
-            1.68,
-            x,
-            2.78,
-            z,
-            material
-        );
-
-}
-
-
-// ============================================================
 // WINDOW
 // ============================================================
 
 function createWindow(
     x,
-    z,
-    material
+    z
 ) {
-
-    const frame =
-        createBox(
-            0.08,
-            1.8,
-            1.7,
-            x,
-            1.8,
-            z,
-            material
-        );
-
 
     const glassMaterial =
         new THREE.MeshStandardMaterial({
             color: 0x18232b,
-            roughness: 0.3,
-            metalness: 0.1
+            roughness: 0.4
         });
 
 
@@ -712,7 +878,9 @@ function createWindow(
         0.04,
         1.4,
         1.25,
-        x + (x < 0 ? 0.04 : -0.04),
+        x < 0
+            ? x + 0.04
+            : x - 0.04,
         1.8,
         z,
         glassMaterial
@@ -722,19 +890,95 @@ function createWindow(
 
 
 // ============================================================
-// LAMP
+// DESK
 // ============================================================
 
-function createLamp(
+function createDesk(
     x,
     z
 ) {
 
+    const material =
+        new THREE.MeshStandardMaterial({
+            color: 0x4a3327,
+            roughness: 0.95
+        });
+
+
+    createBox(
+        1.1,
+        0.1,
+        0.65,
+        x,
+        0.9,
+        z,
+        material
+    );
+
+
+    const legs = [
+        [-0.42, -0.22],
+        [0.42, -0.22],
+        [-0.42, 0.22],
+        [0.42, 0.22]
+    ];
+
+
+    for (
+        const [lx, lz]
+        of legs
+    ) {
+
+        createBox(
+            0.08,
+            0.9,
+            0.08,
+            x + lx,
+            0.45,
+            z + lz,
+            material
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// CEILING LIGHT
+// ============================================================
+
+function createCeilingLight(
+    x,
+    z
+) {
+
+    const light =
+        new THREE.PointLight(
+            0xc8d5ff,
+            5,
+            11,
+            2
+        );
+
+    light.position.set(
+        x,
+        3.3,
+        z
+    );
+
+    scene.add(light);
+
+
     const lampMaterial =
         new THREE.MeshStandardMaterial({
+
             color: 0xd9d9d0,
+
             emissive: 0x777777,
-            emissiveIntensity: 0.4
+
+            emissiveIntensity: 0.35
+
         });
 
 
@@ -752,58 +996,6 @@ function createLamp(
 
 
 // ============================================================
-// DESK
-// ============================================================
-
-function createDesk(
-    x,
-    z
-) {
-
-    const wood =
-        new THREE.MeshStandardMaterial({
-            color: 0x4a3327,
-            roughness: 0.95
-        });
-
-
-    createBox(
-        1.1,
-        0.1,
-        0.65,
-        x,
-        0.9,
-        z,
-        wood
-    );
-
-
-    const legPositions = [
-        [-0.42, -0.22],
-        [0.42, -0.22],
-        [-0.42, 0.22],
-        [0.42, 0.22]
-    ];
-
-
-    for (const position of legPositions) {
-
-        createBox(
-            0.08,
-            0.9,
-            0.08,
-            x + position[0],
-            0.45,
-            z + position[1],
-            wood
-        );
-
-    }
-
-}
-
-
-// ============================================================
 // KEYBOARD
 // ============================================================
 
@@ -814,6 +1006,23 @@ function setupKeyboard() {
         event => {
 
             keys[event.code] = true;
+
+
+            if (
+                event.code === "KeyF"
+            ) {
+
+                toggleFlashlight();
+
+            }
+
+            if (
+                event.code === "KeyE"
+            ) {
+
+                interact();
+
+            }
 
         }
     );
@@ -841,7 +1050,11 @@ function setupMouse() {
         "click",
         () => {
 
-            if (!mouseLocked) {
+            if (
+                window.matchMedia(
+                    "(pointer: fine)"
+                ).matches
+            ) {
 
                 canvas.requestPointerLock();
 
@@ -852,22 +1065,16 @@ function setupMouse() {
 
 
     document.addEventListener(
-        "pointerlockchange",
-        () => {
-
-            mouseLocked =
-                document.pointerLockElement === canvas;
-
-        }
-    );
-
-
-    document.addEventListener(
         "mousemove",
         event => {
 
-            if (!mouseLocked) {
+            if (
+                document.pointerLockElement
+                !== canvas
+            ) {
+
                 return;
+
             }
 
 
@@ -881,18 +1088,7 @@ function setupMouse() {
                 SETTINGS.mouseSensitivity;
 
 
-            const maxPitch =
-                Math.PI / 2 - 0.05;
-
-
-            pitch =
-                Math.max(
-                    -maxPitch,
-                    Math.min(
-                        maxPitch,
-                        pitch
-                    )
-                );
+            limitPitch();
 
         }
     );
@@ -901,10 +1097,325 @@ function setupMouse() {
 
 
 // ============================================================
-// PLAYER MOVEMENT
+// MOBILE CONTROLS
 // ============================================================
 
-function updatePlayer(delta) {
+function setupMobileControls() {
+
+    // --------------------------------------------------------
+    // JOYSTICK
+    // --------------------------------------------------------
+
+    joystickArea.addEventListener(
+        "pointerdown",
+        event => {
+
+            joystickPointerId =
+                event.pointerId;
+
+            joystickArea.setPointerCapture(
+                event.pointerId
+            );
+
+            updateJoystick(
+                event
+            );
+
+        }
+    );
+
+
+    joystickArea.addEventListener(
+        "pointermove",
+        event => {
+
+            if (
+                event.pointerId !==
+                joystickPointerId
+            ) {
+
+                return;
+
+            }
+
+            updateJoystick(
+                event
+            );
+
+        }
+    );
+
+
+    const releaseJoystick = event => {
+
+        if (
+            event.pointerId !==
+            joystickPointerId
+        ) {
+
+            return;
+
+        }
+
+        joystickPointerId = null;
+
+        joystickX = 0;
+        joystickY = 0;
+
+        joystickKnob.style.transform =
+            "translate(0px, 0px)";
+
+    };
+
+
+    joystickArea.addEventListener(
+        "pointerup",
+        releaseJoystick
+    );
+
+    joystickArea.addEventListener(
+        "pointercancel",
+        releaseJoystick
+    );
+
+
+    // --------------------------------------------------------
+    // TOUCH LOOK
+    // --------------------------------------------------------
+
+    canvas.addEventListener(
+        "pointerdown",
+        event => {
+
+            if (
+                !window.matchMedia(
+                    "(pointer: coarse)"
+                ).matches
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                event.clientX <
+                window.innerWidth * 0.35
+            ) {
+
+                return;
+
+            }
+
+
+            lookPointerId =
+                event.pointerId;
+
+            lookLastX =
+                event.clientX;
+
+            lookLastY =
+                event.clientY;
+
+            canvas.setPointerCapture(
+                event.pointerId
+            );
+
+        }
+    );
+
+
+    canvas.addEventListener(
+        "pointermove",
+        event => {
+
+            if (
+                event.pointerId !==
+                lookPointerId
+            ) {
+
+                return;
+
+            }
+
+
+            const dx =
+                event.clientX -
+                lookLastX;
+
+            const dy =
+                event.clientY -
+                lookLastY;
+
+
+            lookLastX =
+                event.clientX;
+
+            lookLastY =
+                event.clientY;
+
+
+            yaw -=
+                dx *
+                SETTINGS.touchSensitivity;
+
+
+            pitch -=
+                dy *
+                SETTINGS.touchSensitivity;
+
+
+            limitPitch();
+
+        }
+    );
+
+
+    const releaseLook = event => {
+
+        if (
+            event.pointerId ===
+            lookPointerId
+        ) {
+
+            lookPointerId = null;
+
+        }
+
+    };
+
+
+    canvas.addEventListener(
+        "pointerup",
+        releaseLook
+    );
+
+    canvas.addEventListener(
+        "pointercancel",
+        releaseLook
+    );
+
+
+    // --------------------------------------------------------
+    // BUTTONS
+    // --------------------------------------------------------
+
+    flashlightButton.addEventListener(
+        "pointerdown",
+        event => {
+
+            event.preventDefault();
+
+            toggleFlashlight();
+
+        }
+    );
+
+
+    interactButton.addEventListener(
+        "pointerdown",
+        event => {
+
+            event.preventDefault();
+
+            interact();
+
+        }
+    );
+
+
+    fullscreenButton.addEventListener(
+        "pointerdown",
+        event => {
+
+            event.preventDefault();
+
+            toggleFullscreen();
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// JOYSTICK UPDATE
+// ============================================================
+
+function updateJoystick(
+    event
+) {
+
+    const rect =
+        joystickArea.getBoundingClientRect();
+
+
+    const centerX =
+        rect.left +
+        rect.width / 2;
+
+    const centerY =
+        rect.top +
+        rect.height / 2;
+
+
+    let dx =
+        event.clientX -
+        centerX;
+
+    let dy =
+        event.clientY -
+        centerY;
+
+
+    const maxDistance = 48;
+
+
+    const distance =
+        Math.sqrt(
+            dx * dx +
+            dy * dy
+        );
+
+
+    if (
+        distance >
+        maxDistance
+    ) {
+
+        const ratio =
+            maxDistance /
+            distance;
+
+        dx *= ratio;
+        dy *= ratio;
+
+    }
+
+
+    joystickX =
+        dx /
+        maxDistance;
+
+
+    joystickY =
+        dy /
+        maxDistance;
+
+
+    joystickKnob.style.transform =
+        `translate(${dx}px, ${dy}px)`;
+
+}
+
+
+// ============================================================
+// PLAYER
+// ============================================================
+
+function updatePlayer(
+    delta
+) {
 
     const forward =
         new THREE.Vector3(
@@ -926,6 +1437,8 @@ function updatePlayer(delta) {
         new THREE.Vector3();
 
 
+    // PC
+
     if (keys["KeyW"]) {
         movement.add(forward);
     }
@@ -943,54 +1456,198 @@ function updatePlayer(delta) {
     }
 
 
-    if (movement.lengthSq() > 0) {
+    // MOBILE
 
-        movement.normalize();
+    if (
+        Math.abs(joystickY) >
+        0.01
+    ) {
 
-        movement.multiplyScalar(
-            SETTINGS.moveSpeed * delta
+        movement.addScaledVector(
+            forward,
+            -joystickY
         );
 
     }
 
 
+    if (
+        Math.abs(joystickX) >
+        0.01
+    ) {
+
+        movement.addScaledVector(
+            right,
+            joystickX
+        );
+
+    }
+
+
+    if (
+        movement.lengthSq() >
+        0.0001
+    ) {
+
+        movement.normalize();
+
+        movement.multiplyScalar(
+            SETTINGS.moveSpeed *
+            delta
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // BASIC COLLISION
+    // --------------------------------------------------------
+
     const nextX =
-        player.x + movement.x;
+        player.x +
+        movement.x;
 
     const nextZ =
-        player.z + movement.z;
+        player.z +
+        movement.z;
 
-
-    // Corridor boundaries
 
     if (
-        nextX > -3.55 &&
-        nextX < 3.55
+        nextX >
+        SETTINGS.corridorMinX &&
+
+        nextX <
+        SETTINGS.corridorMaxX
     ) {
 
-        player.x = nextX;
+        player.x =
+            nextX;
 
     }
 
 
     if (
-        nextZ < 7.6 &&
-        nextZ > -40.2
+        nextZ >
+        SETTINGS.corridorMinZ &&
+
+        nextZ <
+        SETTINGS.corridorMaxZ
     ) {
 
-        player.z = nextZ;
+        player.z =
+            nextZ;
 
     }
 
 
-    camera.position.copy(player);
+    camera.position.copy(
+        player
+    );
 
 
-    camera.rotation.order = "YXZ";
+    camera.rotation.order =
+        "YXZ";
 
-    camera.rotation.y = yaw;
 
-    camera.rotation.x = pitch;
+    camera.rotation.y =
+        yaw;
+
+
+    camera.rotation.x =
+        pitch;
+
+}
+
+
+// ============================================================
+// LIMIT LOOK
+// ============================================================
+
+function limitPitch() {
+
+    const limit =
+        Math.PI / 2 -
+        0.05;
+
+
+    pitch =
+        Math.max(
+            -limit,
+            Math.min(
+                limit,
+                pitch
+            )
+        );
+
+}
+
+
+// ============================================================
+// FLASHLIGHT
+// ============================================================
+
+function toggleFlashlight() {
+
+    flashlightOn =
+        !flashlightOn;
+
+
+    flashlight.intensity =
+        flashlightOn
+            ? 18
+            : 0;
+
+
+    flashlightButton.style.opacity =
+        flashlightOn
+            ? "1"
+            : "0.55";
+
+}
+
+
+// ============================================================
+// INTERACTION
+// ============================================================
+
+function interact() {
+
+    console.log(
+        "Interaction pressed"
+    );
+
+}
+
+
+// ============================================================
+// FULLSCREEN
+// ============================================================
+
+async function toggleFullscreen() {
+
+    try {
+
+        if (
+            !document.fullscreenElement
+        ) {
+
+            await document.documentElement
+                .requestFullscreen();
+
+        } else {
+
+            await document.exitFullscreen();
+
+        }
+
+    } catch (error) {
+
+        console.log(
+            "Fullscreen unavailable",
+            error
+        );
+
+    }
 
 }
 
@@ -999,7 +1656,7 @@ function updatePlayer(delta) {
 // RESIZE
 // ============================================================
 
-function onResize() {
+function resize() {
 
     camera.aspect =
         window.innerWidth /
@@ -1026,12 +1683,14 @@ function onResize() {
 
 
 // ============================================================
-// MAIN LOOP
+// GAME LOOP
 // ============================================================
 
 function animate() {
 
-    requestAnimationFrame(animate);
+    requestAnimationFrame(
+        animate
+    );
 
 
     const delta =
@@ -1041,7 +1700,9 @@ function animate() {
         );
 
 
-    updatePlayer(delta);
+    updatePlayer(
+        delta
+    );
 
 
     renderer.render(
@@ -1056,13 +1717,22 @@ function animate() {
 // ERROR
 // ============================================================
 
-function showError(error) {
+function showError(
+    error
+) {
 
-    console.error(error);
+    console.error(
+        error
+    );
 
-    loading.style.display = "none";
 
-    errorBox.style.display = "block";
+    loading.style.display =
+        "none";
+
+
+    errorBox.style.display =
+        "block";
+
 
     errorBox.textContent =
         "MAKTAB yuklanishida xatolik: " +
