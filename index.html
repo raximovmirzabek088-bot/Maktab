@@ -13,11 +13,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;touch-action:no
 user-select:none;-webkit-user-select:none;font-family:'Share Tech Mono',monospace,Arial,sans-serif;color:#cfd2d6}
 #game{position:fixed;inset:0;width:100%;height:100%;display:block}
 
-/* Vinyetka — kuchliroq dahshat */
 #vignette{position:fixed;inset:0;z-index:15;pointer-events:none;
 background:radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.65) 100%)}
 
-/* Film grain */
 #grain{position:fixed;inset:0;z-index:16;pointer-events:none;opacity:.045;
 background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 animation:grain 0.4s steps(2) infinite}
@@ -48,7 +46,6 @@ color:#d4d8de;font-size:14px;letter-spacing:2.5px;cursor:pointer;transition:all 
 @keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
 .tag{color:#4e545e;font-size:11px;margin-top:18px;letter-spacing:1.5px}
 
-/* HUD */
 #hud{position:fixed;inset:0;z-index:25;pointer-events:none;display:none}
 body.playing #hud{display:block}
 #quest{position:absolute;top:14px;left:16px;max-width:48vw;background:rgba(6,7,10,.78);
@@ -59,6 +56,7 @@ box-shadow:0 4px 20px rgba(0,0,0,.4)}
 .chip{background:rgba(6,7,10,.78);border:1px solid #2c313a;padding:6px 12px;font-size:11px;letter-spacing:1.2px}
 .chip.key{border-color:#1a6b62;color:#6fd8cd;box-shadow:0 0 12px rgba(50,180,160,.15)}
 .chip.k2{border-color:#6b5a1a;color:#d8c86f;box-shadow:0 0 12px rgba(180,160,50,.15)}
+.chip.lvl{border-color:#3a3a6b;color:#a8a8e8;box-shadow:0 0 12px rgba(90,90,180,.15)}
 #hint{position:absolute;bottom:20vh;left:50%;transform:translateX(-50%);font-size:13.5px;
 background:rgba(6,7,10,.82);border:1px solid #2c313a;padding:8px 16px;opacity:0;
 transition:opacity .18s;white-space:nowrap;letter-spacing:1px}
@@ -77,10 +75,9 @@ opacity:0;transition:opacity .6s}
 #chapter-title{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
 z-index:55;pointer-events:none;opacity:0;transition:opacity .8s;background:rgba(0,0,0,.35)}
 #chapter-title.show{opacity:1}
-#chapter-title span{font-family:'Creepster',cursive;font-size:clamp(32px,8vw,48px);letter-spacing:10px;color:#c22020;
-text-shadow:0 0 30px rgba(0,0,0,.95),0 3px 12px #000}
+#chapter-title span{font-family:'Creepster',cursive;font-size:clamp(28px,7vw,44px);letter-spacing:6px;color:#c22020;
+text-shadow:0 0 30px rgba(0,0,0,.95),0 3px 12px #000;text-align:center;padding:0 20px}
 
-/* Crosshair */
 #crosshair{position:fixed;left:50%;top:50%;width:10px;height:10px;transform:translate(-50%,-50%);
 z-index:20;pointer-events:none;display:none}
 body.playing #crosshair{display:block}
@@ -90,7 +87,6 @@ body.playing #crosshair{display:block}
 #crosshair.active{filter:drop-shadow(0 0 3px #e8c87a)}
 #crosshair.active::before,#crosshair.active::after{background:rgba(232,200,122,.95)}
 
-/* Mobile */
 #mobile-ui{position:fixed;inset:0;z-index:30;pointer-events:none;display:none}
 @media(pointer:coarse){#mobile-ui{display:block}}
 .mobile-button{position:absolute;width:60px;height:60px;border-radius:50%;
@@ -114,7 +110,6 @@ border:1.5px solid rgba(255,255,255,.25);background:rgba(18,18,20,.25)}
 background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.4);pointer-events:none;
 transition:transform .05s}
 
-/* Keypad */
 .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
 .keypad button{padding:14px;background:#14171c;border:1px solid #353a43;color:#d4d8de;
 font-size:18px;cursor:pointer;font-family:inherit;transition:background .1s}
@@ -166,42 +161,25 @@ line-height:1.45;display:none;pointer-events:auto;border-radius:2px}
 </div>
 <div id="chapter-title"><span id="chapter-text"></span></div>
 
-<!-- MENYU -->
 <div id="screen-menu" class="screen active">
   <h1 class="logo">MAKTAB</h1>
-  <div class="sub">Liminal dahshat · Omon qolish · Boshqotirma</div>
+  <div class="sub">Liminal dahshat · Omon qolish · Boshqotirma · 25 daraja</div>
   <div class="panel" style="max-width:370px">
     <button class="btn red" id="btn-play">O'YNASH</button>
     <button class="btn" id="btn-howto">YO'RIQNOMA</button>
     <div class="tag" id="lic-status"></div>
-    <div class="tag">v2.0 · 1-bob bepul · Davomi litsenziya bilan</div>
+    <div class="tag">v3.0 · 1—4-darajalar bepul · Davomi litsenziya bilan</div>
   </div>
 </div>
 
-<!-- YO'RIQNOMA -->
 <div id="screen-howto" class="screen">
   <div class="panel">
     <h2 style="letter-spacing:5px;margin-bottom:16px;color:#c8cdd4">YO'RIQNOMA</h2>
-    <div class="note-text">KOMPYUTER:
-WASD — yurish · Sichqoncha — qarash
-E — o'zaro ta'sir · F — fonar
-Shift — yugurish (kuch tugasa to'xtaydi)
-
-TELEFON:
-Chap pastki joystik — yurish
-E — ochish/olish · 🔦 — fonar · ⚡ — yugurish
-Ekran bo'sh joyiga bosib suring — atrofga qarash
-[⛶] — to'liq ekran (avtomatik landscape)
-
-MASLAHAT:
-Soya yonayotgan fonarni uzoqdan sezadi.
-Fonarni o'chirib sinfxonalarga yashiring.
-Notalarni diqqat bilan o'qing — kod va maslahatlar yashiringan.</div>
+    <div class="note-text" id="howto-text"></div>
     <button class="btn" id="btn-back">ORQAGA</button>
   </div>
 </div>
 
-<!-- NOTA -->
 <div id="screen-note" class="screen">
   <div class="panel">
     <h2 id="note-title" style="letter-spacing:3px;color:#c8cdd4"></h2>
@@ -210,18 +188,16 @@ Notalarni diqqat bilan o'qing — kod va maslahatlar yashiringan.</div>
   </div>
 </div>
 
-<!-- QAS -->
 <div id="screen-safe" class="screen">
   <div class="panel" style="max-width:350px">
     <h2 style="letter-spacing:5px;color:#c8cdd4">QULFLI QAS</h2>
-    <div style="font-size:12px;color:#6a707a;margin-top:6px">4 raqamli kod kiriting</div>
+    <div style="font-size:12px;color:#6a707a;margin-top:6px">4 raqamli kodni kiriting</div>
     <div id="safe-display">- - - -</div>
     <div class="keypad" id="keypad"></div>
     <button class="btn small" id="safe-close">BEKOR QILISH</button>
   </div>
 </div>
 
-<!-- TASDIQLASH -->
 <div id="screen-confirm" class="screen">
   <div class="panel">
     <h2 id="confirm-title" style="letter-spacing:3px;color:#c8cdd4"></h2>
@@ -231,17 +207,10 @@ Notalarni diqqat bilan o'qing — kod va maslahatlar yashiringan.</div>
   </div>
 </div>
 
-<!-- LITSENSIYA -->
 <div id="screen-license" class="screen">
   <div class="panel">
-    <h2 style="letter-spacing:4px;color:#c01010">1-BOB TUGADI</h2>
-    <div class="note-text">O'yinning bepul qismini tugatdingiz!
-
-Davomi ochiq: 2 va 3-boblar, barcha yashirin
-notalar va uchta yakun.
-
-Davom etish uchun LITSENSIYA KALITINI
-sotib oling va quyiga kiriting:</div>
+    <h2 style="letter-spacing:4px;color:#c01010">4-DARAJA TUGADI</h2>
+    <div class="note-text" id="license-text"></div>
     <div class="lic-row">
       <input id="lic-input" placeholder="XXXX-XXXX-XXXX" autocomplete="off">
       <button class="btn" id="lic-activate" style="width:auto;padding:13px 18px;margin:0">FAOLLASHTIRISH</button>
@@ -251,7 +220,6 @@ sotib oling va quyiga kiriting:</div>
   </div>
 </div>
 
-<!-- O'LIM -->
 <div id="screen-death" class="screen">
   <h1 class="logo" style="font-size:clamp(36px,9vw,56px)">SOYA SENI OLDI</h1>
   <div class="sub">u yana kutmoqda...</div>
@@ -261,7 +229,6 @@ sotib oling va quyiga kiriting:</div>
   </div>
 </div>
 
-<!-- YAKUN -->
 <div id="screen-ending" class="screen">
   <div class="panel">
     <h2 id="end-title" style="letter-spacing:4px;color:#c01010"></h2>
@@ -279,7 +246,9 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.m
    ============================================================ */
 const TELEGRAM_LINK = "https://t.me/your_channel_here";
 const VALID_KEYS = ["MAKTAB-2025-PREMIUM"];
-const LICENSE_STORAGE = "maktab_license_v2";
+const LICENSE_STORAGE = "maktab_license_v3";
+const LEVEL_MAX = 25;
+const FREE_LEVELS = 4;
 
 const BRIGHT = {
   ambientDay: 0.85,
@@ -292,6 +261,33 @@ const BRIGHT = {
   fogNearDark: 11,
   fogFarDark: 42
 };
+
+document.getElementById("howto-text").textContent =
+`KOMPYUTER:
+WASD — yurish, sichqoncha — atrofga qarash
+E — o'zaro ta'sir va eshiklarni ochish
+F — fonarni yoqish yoki o'chirish
+Shift — yugurish (kuch tugasa, yugurish to'xtaydi)
+
+TELEFON:
+Chap pastdagi joystik — yurish
+E — eshik ochish yoki buyum olish
+Fonar tugmasi — yoritish, chaqmoq tugmasi — yugurish
+Ekranning bo'sh joyiga bosib suring — atrofga qarash
+To'liq ekran tugmasi — gorizontal rejim
+
+MASLAHAT:
+Soya yonayotgan fonarni uzoqdan sezadi.
+Fonarni o'chirib, sinfxonalarga yashiring — Soya eshiklardan hech qachon o'tmaydi.
+Qaydlarni diqqat bilan o'qing: ularda kodlar va maslahatlar yashiringan.
+O'yin 25 darajadan iborat. Dastlabki to'rt daraja bepul, keyingi darajalar litsenziya bilan ochiladi.`;
+
+document.getElementById("license-text").textContent =
+`Bepul qismni muvaffaqiyatli tugatdingiz!
+
+5-darajadan 25-darajagacha davom etish uchun litsenziya kaliti talab qilinadi. Har bir yangi daraja bir xil maktabni, ammo tobora kuchliroq va tezroq Soya bilan qaytadan taklif qiladi.
+
+Davom etish uchun litsenziya kalitini sotib oling va pastga kiriting:`;
 
 /* ============================================================
    DOM
@@ -329,11 +325,11 @@ function showFatal(msg){
   clearTimeout(errTimer);
   errTimer = setTimeout(() => errbar.style.display = "none", 9000);
 }
-window.addEventListener("error", e => showFatal(e.message || "noma'lum"));
+window.addEventListener("error", e => showFatal(e.message || "noma'lum xato"));
 window.addEventListener("unhandledrejection", e => showFatal((e.reason && e.reason.message) || "promise xatosi"));
 canvas.addEventListener("webglcontextlost", e => {
   e.preventDefault();
-  showFatal("Grafik kontekst yo'qoldi — sahifani yangilang");
+  showFatal("Grafik konteksti yo'qoldi — sahifani yangilang");
 });
 
 /* ============================================================
@@ -357,7 +353,8 @@ function toast(msg, ms = 2800){
 function updateQuest(t){ questEl.textContent = t; }
 
 function refreshInv(){
-  let h = `<div class="chip">NOTALAR: ${world.notes.filter(Boolean).length}/6</div>`;
+  let h = `<div class="chip lvl">DARAJA: ${LEVEL}/${LEVEL_MAX}</div>`;
+  h += `<div class="chip">QAYDLAR: ${world.notes.filter(Boolean).length}/6</div>`;
   if(world.items.turquoise) h += `<div class="chip key">TURQUY KALIT</div>`;
   if(world.items.cellarKey) h += `<div class="chip k2">BODRUM KALITI</div>`;
   invEl.innerHTML = h;
@@ -459,9 +456,11 @@ const colliders = [];
 const interactables = [];
 const corridorLights = [];
 const lampMeshes = [];
+const DOORS = [];
 let ambLight, hemiLight, directorLight, cellarLight;
 let torchSpot, torchFill, playerGlow;
-let turquoiseMesh, directorDoorMesh, cellarDoorMesh, note6Mesh;
+let turquoiseMesh, note6Mesh;
+let doorDirector, doorCellar;
 let enemyGroup;
 const MAT = {};
 
@@ -475,6 +474,7 @@ const QUALITY_STEPS = [1, 0.82, 0.68, 0.52];
 let qualityLevel = 0;
 
 const player = new THREE.Vector3(0, 1.68, 6.2);
+let playerY = 1.68;
 let yaw = 0, pitch = 0, stamina = 100, runBlocked = false, bobT = 0;
 const keys = {};
 let joystickX = 0, joystickY = 0, joystickPointerId = null;
@@ -482,6 +482,8 @@ let lookPointerId = null, lookLastX = 0, lookLastY = 0, mobileRun = false;
 let uiLock = false, gameActive = false;
 let deaths = 0;
 let footTimer = 0;
+let LEVEL = 1;
+let pendingLevelUp = false;
 
 let world = {
   notes: [false, false, false, false, false, false],
@@ -492,6 +494,18 @@ let world = {
 let checkpoint = null;
 let chapter = 0, step = '';
 let lightsOn = true;
+
+/* ============================================================
+   QIYINLIK — daraja bo'yicha kuchayadi, lekin adolatli qoladi
+   ============================================================ */
+function difficulty(){
+  return {
+    grace: Math.max(4.5, 10 - LEVEL * 0.2),
+    chaseSpeed: Math.min(5.0, 3.35 + LEVEL * 0.065),
+    patrolSpeed: Math.min(2.25, 1.65 + LEVEL * 0.02),
+    sightBonus: Math.min(4, LEVEL * 0.12)
+  };
+}
 
 /* ============================================================
    YORUG'LIK
@@ -512,10 +526,32 @@ function applyLights(on){
 }
 
 /* ============================================================
-   QURILISH
+   TEKSTURA (yer to'lasi) — bir marta yaratiladi, qayta ishlatiladi
    ============================================================ */
+function makeFloorTexture(){
+  const c = document.createElement("canvas"); c.width = c.height = 128;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#4a4a46"; ctx.fillRect(0, 0, 128, 128);
+  ctx.strokeStyle = "rgba(0,0,0,0.32)"; ctx.lineWidth = 2;
+  for(let i = 0; i <= 128; i += 32){
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 128); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(128, i); ctx.stroke();
+  }
+  ctx.fillStyle = "rgba(255,255,255,0.03)";
+  for(let i = 0; i < 40; i++) ctx.fillRect(Math.random()*128, Math.random()*128, 2, 2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(9, 28);
+  return tex;
+}
+
+/* ============================================================
+   QURILISH — devor/pol geometriyasi qayta ishlatiladi (unumdorlik uchun)
+   ============================================================ */
+const unitBox = new THREE.BoxGeometry(1, 1, 1);
 function solidBox(w, h, d, x, y, z, mat, collide = true){
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  const m = new THREE.Mesh(unitBox, mat);
+  m.scale.set(w, h, d);
   m.position.set(x, y, z);
   scene.add(m);
   if(collide) colliders.push({ minX: x - w/2, maxX: x + w/2, minZ: z - d/2, maxZ: z + d/2 });
@@ -565,43 +601,77 @@ function noteMesh(x, z, rotY){
   return m;
 }
 
+/* Haqiqiy ochiladigan eshik: tebranib ochiladi, Soya undan hech qachon o'tmaydi */
+function makeDoor(cfg){
+  const { hx, hz, axis, width, openSign, locked, keyCheck, label, lockedMsg, onOpen } = cfg;
+  const pivot = new THREE.Object3D();
+  pivot.position.set(hx, 0, hz);
+  scene.add(pivot);
+  const th = 0.14;
+  const geo = axis === 'z' ? new THREE.BoxGeometry(th, DOOR_H, width) : new THREE.BoxGeometry(width, DOOR_H, th);
+  const mesh = new THREE.Mesh(geo, MAT.door);
+  mesh.position.set(axis === 'z' ? 0 : width/2, DOOR_H/2, axis === 'z' ? width/2 : 0);
+  pivot.add(mesh);
+  const collider = { minX:0, maxX:0, minZ:0, maxZ:0, off:false };
+  if(axis === 'z'){ collider.minX = hx - 0.3; collider.maxX = hx + 0.3; collider.minZ = hz; collider.maxZ = hz + width; }
+  else { collider.minX = hx; collider.maxX = hx + width; collider.minZ = hz - 0.3; collider.maxZ = hz + 0.3; }
+  colliders.push(collider);
+  const ix = axis === 'z' ? hx : hx + width/2;
+  const iz = axis === 'z' ? hz + width/2 : hz;
+  const doorObj = { pivot, mesh, open:false, opening:false, target: openSign * Math.PI * 0.5, collider };
+  addInteract(ix, iz, 2.3, label, () => {
+    if(doorObj.open) return;
+    if(locked && keyCheck && !keyCheck()){ Sfx.click(); toast(lockedMsg || "Eshik qulflangan."); return; }
+    doorObj.open = true; doorObj.opening = true; collider.off = true;
+    Sfx.door();
+    if(onOpen) onOpen();
+  }, () => !doorObj.open);
+  DOORS.push(doorObj);
+  return doorObj;
+}
+function resetDoors(){
+  for(const d of DOORS){ d.open = false; d.opening = false; d.pivot.rotation.y = 0; d.collider.off = false; }
+}
+function forceDoorOpen(d){
+  d.open = true; d.opening = false; d.pivot.rotation.y = d.target; d.collider.off = true;
+}
+
 /* ============================================================
-   NOTALAR
+   QAYDLAR
    ============================================================ */
-const NOTES_TEXT = [
- { t: "1-NOTA — Navbatchi daftari",
-   b: "«Oktabr 12. Kechki smena tugadi. Hamma ketti, men eshikni qulflab chiqdim... lekin kalit ishlamadi. Ushbu maktabda kech qolib, ertalabgacha kutganlar — ularni yana ko'rmadim.\n\nAgar bu notani o'qiyotgan bo'lsang — chiroqlar o'chishidan oldin yashirinishga tayyorlan. Soya uyg'onadi.»" },
- { t: "2-NOTA — Sinfdan",
-   b: "«Soya yorug'likni sezmeydi, lekin yorug'lik manbasini SEZADI. Fonarni uzoq yoqib yursang — u seni topadi.\n\nYashirinish uchun sinfxonalarga yashirin: u eshiklardan kirmaydi. U eshik kutadi.»" },
- { t: "3-NOTA — Yil kitobi",
-   b: "«Direktor qasidagi qulf olti raqamli emas — to'rt.\n\nHech kim bilmaydi, lekin men bilaman: bu maktab 1978-YILDA qurilgan. Qasani ochgan odam bodrumga tushadigan yagona kalitni oladi.»" },
- { t: "4-NOTA — Zaldan",
-   b: "«Biz besh kishi edik. Soya zalga kirdi, biz yorug'likni o'chirdik. U zaldan chiqib ketdi... lekin beshinchi o'rtog'im u bilan birga chiqib ketdi.\n\nHech qachon fonarni to'liq ishonch bilan yoqma.»" },
- { t: "5-NOTA — Partada",
-   b: "«Turquy kalit direktor xonasiga olib boradi. Undan keyingi yo'l qasadan chiqadi.\n\nAgar oxirida bir tanlov qilsang — esla: yashil eshik OMON QOLISH, qizil eshik HAQIQAT. Ikkalasi ham seni o'zgartiradi.»" },
- { t: "6-NOTA — Oxirgi ogohlantirish",
-   b: "«Bodrumda ikki eshik bor. Uchinchisi esa faqat barcha notalarni o'qiganlargagina ko'rinadi.\n\n1978-yil, oktabr. Biz o'sha tunda maktabda edik. Sen ham o'sha tunda maktabdasan. Farqi shundaki... sen hali tanlov qilishing mumkin.»" }
+const QAYD_TEXT = [
+ { t: "1-QAYD — Navbatchi daftaridan",
+   b: "Oktabr oyining o'n ikkinchisi. Kechki smena tugadi. Hamma ketdi, men eshikni qulflab chiqmoqchi bo'ldim, lekin kalit ishlamadi. Bu maktabda kech qolib, tongni kutganlar haqida boshqa hech kim eshitmagan.\n\nAgar bu qaydni o'qiyotgan bo'lsang, chiroqlar o'chishidan oldin yashirinishga tayyorlan. Soya endi uyg'onadi." },
+ { t: "2-QAYD — Sinfxonadan topilgan",
+   b: "Soya yorug'likni sezmaydi, lekin yorug'lik manbaini seza oladi. Fonarni uzoq vaqt yoqib yursang, u seni topib oladi.\n\nYashirinish uchun sinfxonalarga kir: u eshiklardan hech qachon o'tmaydi. U faqat eshik oldida kutadi." },
+ { t: "3-QAYD — Yil kitobidan",
+   b: "Direktor xonasidagi qasaning qulfi olti xonali emas, atigi to'rt xonali.\n\nBu maktab 1978-yilda qurilgan. Buni hech kim eslamaydi, lekin men bilaman. Qasani ochgan kishi bodrumga tushadigan yagona kalitni topadi." },
+ { t: "4-QAYD — Zaldan topilgan",
+   b: "Biz besh nafar edik. Soya zalga kirganda, chiroqlarni o'chirib yashirindik. U chiqib ketdi... lekin beshinchi do'stim u bilan birga yo'q bo'ldi.\n\nFonarga hech qachon to'liq ishonma." },
+ { t: "5-QAYD — Partadan topilgan",
+   b: "Turquy kalit direktor xonasiga olib boradi. Keyingi yo'l esa qasadan boshlanadi.\n\nOxirida tanlov qilishing kerak bo'lsa, shuni esla: yashil eshik omon qolishga, qizil eshik esa haqiqatga olib boradi. Ikkalasi ham seni butunlay o'zgartiradi." },
+ { t: "6-QAYD — Oxirgi ogohlantirish",
+   b: "Bodrumda ikkita eshik bor. Uchinchisi esa faqat barcha qaydlarni o'qigan kishigagina ko'rinadi.\n\n1978-yil, oktabr oyi. O'sha kecha biz maktabda edik. Sen ham o'sha kechada maktabdasan. Farqi shundaki, sen hali ham tanlov qila olasan." }
 ];
 
 /* ============================================================
-   DUNYO
+   DUNYO — bir martalik qurilma, har daraja qayta ishlatiladi
    ============================================================ */
 function buildWorld(){
-  MAT.floor = new THREE.MeshStandardMaterial({ color: 0x4e4e4a, roughness: 0.92, metalness: 0.05 });
+  MAT.floor = new THREE.MeshStandardMaterial({ map: makeFloorTexture(), roughness: 0.92, metalness: 0.05 });
   MAT.wall  = new THREE.MeshStandardMaterial({ color: 0x7a766e, roughness: 0.88, metalness: 0.02 });
   MAT.ceil  = new THREE.MeshStandardMaterial({ color: 0x585854, roughness: 0.95, metalness: 0 });
   MAT.wood  = new THREE.MeshStandardMaterial({ color: 0x4e3828, roughness: 0.82, metalness: 0.05 });
   MAT.dark  = new THREE.MeshStandardMaterial({ color: 0x2e2e32, roughness: 0.75, metalness: 0.15 });
   MAT.metal = new THREE.MeshStandardMaterial({ color: 0x3e4146, roughness: 0.45, metalness: 0.55 });
+  MAT.door  = new THREE.MeshStandardMaterial({ color: 0x3e322c, roughness: 0.7, metalness: 0.1 });
 
-  /* Koridor */
   solidBox(8.6, 0.14, 48.6, 0, -0.07, -16, MAT.floor, false);
   solidBox(8.6, 0.14, 48.6, 0, WALL_H + 0.07, -16, MAT.ceil, false);
   buildWallZ(-4, 8, -40, [{ c: -6 }, { c: -18 }, { c: -30 }]);
   buildWallZ( 4, 8, -40, [{ c: -6 }, { c: -19 }, { c: -32 }]);
   buildWallX(8, -4.15, 4.15);
 
-  /* Koridor chiroqlari */
   for(const z of [3, -10, -21, -33]){
     const L = new THREE.PointLight(0xd0e0f5, 22, 16, 1.4);
     L.position.set(0, 3.2, z);
@@ -614,7 +684,6 @@ function buildWorld(){
     lampMeshes.push(lamp);
   }
 
-  /* Xonalar */
   const rooms = [
     { id:'class1',   x1:-11, x2:-4,  z1:-10, z2:-2 },
     { id:'library',  x1:-11, x2:-4,  z1:-22, z2:-14 },
@@ -634,28 +703,23 @@ function buildWorld(){
     buildWallX(r.z2, r.x1, r.x2);
   }
 
-  /* Shkaflar */
   for(const [x, z] of [[-3.55,-3],[3.55,-11],[-3.55,-15],[3.55,-25],[-3.55,-26],[3.55,-35]])
     solidBox(0.58, 2.05, 1.35, x, 1.02, z, MAT.dark);
 
-  /* Sinf 1 */
   desk(-6.5, -4.5); desk(-9.5, -4.5); desk(-6.5, -7.5); desk(-9.5, -7.5);
 
-  /* Kutubxona */
   for(const z of [-15.5, -18, -20.5]) solidBox(0.42, 2.55, 3.1, -10.5, 1.28, z, MAT.wood);
   solidBox(0.42, 2.55, 2.3, -7.8, 1.28, -19.5, MAT.wood);
 
-  /* Direktor */
   solidBox(1.85, 0.82, 0.88, -8.6, 0.41, -31.5, MAT.wood);
   colliders.push({ minX: -9.55, maxX: -7.65, minZ: -32, maxZ: -31 });
   solidBox(0.52, 0.48, 0.52, -8.6, 0.24, -30.2, MAT.dark, false);
   solidBox(0.88, 1.12, 0.62, -10.3, 0.56, -27.2, MAT.metal);
   addInteract(-10.3, -27.2, 2.3, "Qasani tekshir", () => {
     if(world.safe){ toast("Qas bo'sh — unda endi hech narsa yo'q."); return; }
-    if(chapter >= 2) openSafePanel(); else toast("Qas qulflangan. Kodni bilish kerak.");
+    if(chapter >= 2) openSafePanel(); else toast("Qas qulflangan. Avval kodni bilib olishing kerak.");
   });
 
-  /* Sinf 2 — turquy kalit */
   desk(6.5, -4.5); desk(9.5, -4.5); desk(6.5, -7.5); desk(9.5, -7.5);
   turquoiseMesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.12, 0),
     new THREE.MeshStandardMaterial({ color: 0x28c8b8, emissive: 0x0a5048, emissiveIntensity: 0.4, roughness: 0.25, metalness: 0.6 }));
@@ -667,35 +731,35 @@ function buildWorld(){
     toast("TURQUY KALIT olindi!");
     refreshInv(); refreshWorld(); saveCheckpoint();
     step = 'openDirector';
-    updateQuest("Direktor xonasi eshigini oching (chap tomonda)");
+    updateQuest("Direktor xonasi eshigini oching (koridorning chap tomonida)");
   }, () => !world.items.turquoise);
 
-  /* Sport zali */
   for(const [x, z] of [[6,-16],[10.5,-19],[6,-22],[10.5,-16]])
     solidBox(0.55, 0.42, 2.9, x, 0.21, z, MAT.wood);
 
-  /* Oshxona */
   solidBox(2.15, 0.72, 0.88, 7.5, 0.36, -31, MAT.metal);
   solidBox(1.35, 0.72, 1.35, 9.5, 0.36, -34, MAT.wood);
 
-  /* Direktor eshigi */
-  directorDoorMesh = new THREE.Mesh(new THREE.BoxGeometry(0.2, DOOR_H, 1.68),
-    new THREE.MeshStandardMaterial({ color: 0x3e322c, roughness: 0.7, metalness: 0.1 }));
-  directorDoorMesh.position.set(-4, DOOR_H/2, -30);
-  scene.add(directorDoorMesh);
-  colliders.push({ id:'directorDoor', minX:-4.12, maxX:-3.88, minZ:-30.84, maxZ:-29.16 });
-  addInteract(-4, -30, 2.5, "Direktor eshigi", () => {
-    if(world.doors.director) return;
-    if(world.items.turquoise){
-      world.doors.director = true; Sfx.door();
+  /* Har bir xona uchun haqiqiy ochiladigan eshiklar */
+  makeDoor({ hx:-4, hz:-6.85,  axis:'z', width:1.7,  openSign:-1, locked:false, label:"Sinfxona eshigini och" });
+  makeDoor({ hx:-4, hz:-18.85, axis:'z', width:1.7,  openSign:-1, locked:false, label:"Kutubxona eshigini och" });
+  makeDoor({ hx:4,  hz:-6.85,  axis:'z', width:1.7,  openSign:1,  locked:false, label:"Sinfxona eshigini och" });
+  makeDoor({ hx:4,  hz:-19.85, axis:'z', width:1.7,  openSign:1,  locked:false, label:"Sport zali eshigini och" });
+  makeDoor({ hx:4,  hz:-32.85, axis:'z', width:1.7,  openSign:1,  locked:false, label:"Oshxona eshigini och" });
+
+  doorDirector = makeDoor({
+    hx:-4, hz:-30.84, axis:'z', width:1.68, openSign:-1, locked:true,
+    keyCheck: () => world.items.turquoise,
+    label: "Direktor eshigini och",
+    lockedMsg: "Qulflangan. Turquy kalit kerak.",
+    onOpen: () => {
+      world.doors.director = true;
       toast("Direktor eshigi ochildi");
-      refreshWorld(); saveCheckpoint();
       step = 'enterDirector';
       updateQuest("Direktor xonasiga kiring");
-    }else{
-      Sfx.click(); toast("Qulflangan. Turquy kalit kerak.");
+      saveCheckpoint();
     }
-  }, () => !world.doors.director);
+  });
 
   /* Bodrum */
   solidBox(8.3, 0.14, 8.3, 0, -0.07, -44, MAT.floor, false);
@@ -707,25 +771,25 @@ function buildWorld(){
   cellarLight = new THREE.PointLight(0xff3a2a, 9, 11, 1.5);
   cellarLight.position.set(0, 2.55, -44);
   scene.add(cellarLight);
-  cellarDoorMesh = new THREE.Mesh(new THREE.BoxGeometry(1.68, DOOR_H, 0.2),
-    new THREE.MeshStandardMaterial({ color: 0x35322e, roughness: 0.7, metalness: 0.1 }));
-  cellarDoorMesh.position.set(0, DOOR_H/2, -40);
-  scene.add(cellarDoorMesh);
-  colliders.push({ id:'cellarDoor', minX:-0.84, maxX:0.84, minZ:-40.12, maxZ:-39.88 });
-  addInteract(0, -40, 2.5, "Bodrum eshigi", () => {
-    if(world.doors.cellar) return;
-    if(world.items.cellarKey){
-      world.doors.cellar = true; Sfx.door();
-      toast("Bodrum eshigi ochildi... pastdan shivir eshitilyapti");
-      refreshWorld(); saveCheckpoint();
-      step = 'descend';
-      updateQuest("Bodrumga tush");
-    }else{
-      Sfx.click(); toast("Qulflangan. Bodrum kaliti kerak.");
-    }
-  }, () => !world.doors.cellar);
 
-  /* Yakun eshiklari */
+  /* Zinapoya — bodrumga tushish tuygusi uchun bezak */
+  for(let i = 0; i < 4; i++)
+    solidBox(1.5, 0.1, 0.42, 0, -0.02 - i * 0.075, -38.4 - i * 0.42, MAT.dark, false);
+
+  doorCellar = makeDoor({
+    hx:-0.85, hz:-40, axis:'x', width:1.7, openSign:1, locked:true,
+    keyCheck: () => world.items.cellarKey,
+    label: "Bodrum eshigini och",
+    lockedMsg: "Qulflangan. Bodrum kaliti kerak.",
+    onOpen: () => {
+      world.doors.cellar = true;
+      toast("Bodrum eshigi ochildi... pastdan shivir eshitilyapti");
+      step = 'descend';
+      updateQuest("Zinapoyadan bodrumga tushing");
+      saveCheckpoint();
+    }
+  });
+
   const exits = [
     { x:-2.5, col:0x1a8a4c, key:'escape', t:"YASHIL ESHIK" },
     { x: 2.5, col:0x8a1a1a, key:'truth',  t:"QIZIL ESHIK" },
@@ -737,12 +801,14 @@ function buildWorld(){
     m.position.set(e.x, 1.18, -47.55);
     scene.add(m);
     if(e.key === 'full'){ m.visible = false; window['_hiddenExit'] = m; }
-    addInteract(e.x, -46.5, 2.15, e.t, () => askEnding(e.key),
-      () => chapter === 3 && (e.key !== 'full' || world.notes.every(Boolean)));
+    let onFn;
+    if(e.key === 'escape') onFn = () => chapter === 3;
+    else if(e.key === 'truth') onFn = () => chapter === 3 && LEVEL === LEVEL_MAX;
+    else onFn = () => chapter === 3 && LEVEL === LEVEL_MAX && world.notes.every(Boolean);
+    addInteract(e.x, -46.5, 2.15, e.t, () => handleExit(e.key), onFn);
   }
   for(const z of [-42, -45]) solidBox(0.16, 0.16, 5.4, -3.55, 2.85, z, MAT.metal, false);
 
-  /* Notalar */
   const positions = [
     { x: 3.75, z: 5.4,   ry: -Math.PI/2 },
     { x: -7.5, z: -9.75, ry: 0 },
@@ -755,12 +821,11 @@ function buildWorld(){
   positions.forEach((p, i) => {
     const m = noteMesh(p.x, p.z, p.ry);
     window['_noteMeshes'].push(m);
-    addInteract(p.x, p.z, 2.15, "Notani o'qing", () => openNote(i));
+    addInteract(p.x, p.z, 2.15, "Qaydni o'qi", () => openNote(i));
   });
   note6Mesh = window['_noteMeshes'][5];
   note6Mesh.visible = false;
 
-  /* SOYA — yaxshilangan model */
   enemyGroup = new THREE.Group();
   const bodyMat = new THREE.MeshStandardMaterial({ color: 0x060608, roughness: 0.35, metalness: 0.2 });
   const body = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.32, 1.55, 12), bodyMat);
@@ -791,7 +856,22 @@ function startGame(){
   Sfx.ensure();
   showScreen(null);
   if(isCoarse) toggleFullscreen();
+  LEVEL = 1;
+  resetWorldState();
+  applyLights(true);
   startChapter(1);
+}
+
+function resetWorldState(){
+  world = {
+    notes: [false, false, false, false, false, false],
+    items: { turquoise: false, cellarKey: false },
+    doors: { director: false, cellar: false },
+    safe: false
+  };
+  resetDoors();
+  refreshWorld();
+  refreshInv();
 }
 
 function startChapter(n){
@@ -799,28 +879,31 @@ function startChapter(n){
   gameActive = true;
   uiLock = false;
   setHud(true);
+  const d = difficulty();
 
   if(n === 1){
     step = 'readNote';
-    chapterTitle("1-BOB — QULFLANGAN TUN");
-    updateQuest("O'ng devordagi navbatchi notesini o'qing (E)");
-    player.set(0, 1.68, 6.2); yaw = 0; pitch = 0; stamina = 100;
+    chapterTitle(`${LEVEL}-DARAJA — QULFLANGAN TUN`);
+    updateQuest("O'ng devordagi navbatchi qaydini o'qing (E)");
+    player.set(0, 1.68, 6.2); playerY = 1.68; yaw = 0; pitch = 0; stamina = 100;
     saveCheckpoint();
   }
   if(n === 2){
     step = 'safe';
-    chapterTitle("2-BOB — QASANING SIRI");
-    updateQuest("Direktor qasini oching — 4 raqamli kod notalarda yashiringan");
-    toast("Soya kuchaydi — ehtiyot bo'l!", 3400);
+    chapterTitle(`${LEVEL}-DARAJA — QASANING SIRI`);
+    updateQuest("Direktor qasini oching — 4 raqamli kod qaydlarda yashiringan");
+    toast("Soya kuchaymoqda — ehtiyot bo'l!", 3400);
     enemy.reset();
-    enemy.speedChase = 4.05;
+    enemy.speedChase = d.chaseSpeed;
     saveCheckpoint();
     refreshInv();
   }
   if(n === 3){
     step = 'choice';
-    chapterTitle("3-BOB — TANLOV");
-    updateQuest("Bodrumda uchta eshik... yoki ikkita. Tanlov — seniki.");
+    chapterTitle(`${LEVEL}-DARAJA — TANLOV`);
+    updateQuest(LEVEL < LEVEL_MAX
+      ? "Bodrumda yashil eshikni toping va keyingi darajaga o'ting"
+      : "Bodrumda uchta eshik bor... yoki ikkita. Tanlov — seniki.");
     enemy.active = false;
     enemyGroup.visible = false;
     vigDanger.style.opacity = 0;
@@ -833,6 +916,7 @@ function blackoutEvent(){
   uiLock = true;
   toast("...chiroqlar o'chmoqda...", 2500);
   Sfx.growl();
+  const d = difficulty();
   corridorLights.forEach((L, i) => {
     setTimeout(() => { Sfx.click(); L.visible = false; }, 480 + i * 400);
   });
@@ -847,10 +931,10 @@ function blackoutEvent(){
     applyLights(false);
     enemy.active = true;
     enemyGroup.visible = true;
-    enemy.graceT = 9;
+    enemy.graceT = d.grace;
     step = 'findKey';
-    updateQuest("Sinf 2 xonasida TURQUY KALITNI toping (o'ng tomonda)");
-    toast("SOYA UYG'ONDI! Fonarni yoqing — F yoki 🔦", 4500);
+    updateQuest("Sinf 2 xonasida TURQUY KALITNI toping (koridorning o'ng tomonida)");
+    toast("SOYA UYG'ONDI! Fonarni yoqing — F yoki fonar tugmasi", 4500);
     flashBtn.classList.add("pulse");
     uiLock = false;
     saveCheckpoint();
@@ -860,8 +944,8 @@ function blackoutEvent(){
 let pendingBlackout = false;
 function openNote(i){
   uiLock = true;
-  document.getElementById("note-title").textContent = NOTES_TEXT[i].t;
-  document.getElementById("note-body").textContent = NOTES_TEXT[i].b;
+  document.getElementById("note-title").textContent = QAYD_TEXT[i].t;
+  document.getElementById("note-body").textContent = QAYD_TEXT[i].b;
   showScreen("screen-note");
   if(document.pointerLockElement) document.exitPointerLock();
   if(!world.notes[i]){
@@ -906,12 +990,12 @@ function safePress(k){
       toast("Qas ochildi — BODRUM KALITI olindi!", 3200);
       refreshInv();
       step = 'openCellar';
-      updateQuest("Koridor oxiridagi BODRUM ESHIGINI oching");
+      updateQuest("Koridor oxiridagi bodrum eshigini oching");
       saveCheckpoint();
     }else{
       safeCode = ""; Sfx.wrong();
       disp.classList.remove("bad"); void disp.offsetWidth; disp.classList.add("bad");
-      toast("Kod xato. Notalarni qayta o'qing.");
+      toast("Kod noto'g'ri. Qaydlarni qayta o'qib chiqing.");
     }
   }
   else if(safeCode.length < 4){ safeCode += k; Sfx.click(); }
@@ -921,24 +1005,31 @@ document.getElementById("safe-close").addEventListener("click", () => {
   showScreen(null); uiLock = false;
 });
 
-/* YAKUNLAR */
+/* YAKUNLAR va DARAJA O'TISHI */
 let pendingEnding = null;
 const ENDINGS = {
   escape: { t: "YAKUN 1 — QOCHISH",
-    b: "Eshik og'ir zulmat orasidan ochilib, seni sovuq tunga otdi. Yugurding, to'xtamading. Tong otganda orqaga qarasang — maktab YO'Q. Faqat tekis, o't yagan maydon.\n\nSen qochding... lekin nimadan? Tunda ko'rganlaring xotirangda cho'yan singari qotib qoldi." },
+    b: "Eshik og'ir zulmat orasidan ochilib, seni sovuq tunga otdi. Yugurding, to'xtamading. Tong otganda orqaga qarasang, maktab yo'q edi. Faqat tekis, o't bosgan maydon qolgan edi.\n\nSen qochding, lekin nimadan? Tunda ko'rganlaring xotirangda cho'yandek qotib qoldi." },
   truth: { t: "YAKUN 2 — HAQIQAT",
-    b: "Pastda 1978-yilning o'chiq olovi yonardi. Yonayotgan narsa — eski sinf jurnali. Sahifada 24 ta ism... va ular orasida SENIKI ham bor.\n\nSoya seni ta'qib qilmadi — u seni ESLAB qoldi. Bu maktab hech kimni tashlab ketmaydi. U faqat o'zida qoldiradi." },
+    b: "Pastda 1978-yildan qolgan olov hali ham yonardi. Yonayotgan narsa eski sinf jurnali edi. Sahifada yigirma to'rtta ism bor edi, ular orasida seniki ham bor edi.\n\nSoya seni ta'qib qilmadi, u seni eslab qoldi. Bu maktab hech kimni tashlab ketmaydi. U faqat o'zida qoldiradi." },
   full: { t: "YAKUN 3 — TONG (asl yakun)",
-    b: "Uchinchi eshik faqat senga ko'rindi. Ortida kichik xona: eski chiroq, navbatchi daftari va bitta bo'sh qator.\n\nQo'ling xuddi o'sha tunda qilgani kabi qalam oldi va yozdi: o'z ismingni. Daftar yopildi. Eshikdan chiqding — va birinchi marta TONG otayotganini ko'rding.\n\nBarcha notalarni to'liq o'qigan odamni Soya hech qachon tutmaydi." }
+    b: "Uchinchi eshik faqat senga ko'rindi. Ortida kichkina xona bor edi: eski chiroq, navbatchi daftari va bitta bo'sh qator.\n\nQo'ling xuddi o'sha kechasi qilganidek qalam oldi va o'z ismingni yozdi. Daftar yopildi. Eshikdan chiqding va birinchi marta tong otayotganini ko'rding.\n\nBarcha qaydlarni to'liq o'qigan kishini Soya hech qachon tutolmaydi." }
 };
+function handleExit(kind){
+  if(LEVEL < LEVEL_MAX){
+    if(kind === 'escape') goNextLevel();
+    return;
+  }
+  askEnding(kind);
+}
 function askEnding(kind){
   pendingEnding = kind;
   uiLock = true;
   document.getElementById("confirm-title").textContent = ENDINGS[kind].t.split("—")[0].trim();
   document.getElementById("confirm-text").textContent =
-    kind === 'escape' ? "Tungi havo eshik ortidan kelmoqda. Qochishni tanlaysizmi? O'yin yakunlanadi." :
-    kind === 'truth'  ? "Pastdan issiq to'lqin va olov hidi keladi. Haqiqatni tanlaysizmi? O'yin yakunlanadi." :
-                        "Bu eshik faqat senga ko'rinmoqda. Ochmoqchimisiz? O'yin yakunlanadi.";
+    kind === 'escape' ? "Tungi havo eshik ortidan kelmoqda. Qochishni tanlaysizmi? O'yin shu yerda yakunlanadi." :
+    kind === 'truth'  ? "Pastdan issiq havo to'lqini va olov hidi kelmoqda. Haqiqatni bilishni tanlaysizmi? O'yin shu yerda yakunlanadi." :
+                        "Bu eshik faqat senga ko'rinmoqda. Uni ochmoqchimisiz? O'yin shu yerda yakunlanadi.";
   showScreen("screen-confirm");
   if(document.pointerLockElement) document.exitPointerLock();
 }
@@ -957,15 +1048,53 @@ function finishEnding(kind){
   document.getElementById("end-title").textContent = e.t;
   document.getElementById("end-text").textContent = e.b;
   document.getElementById("end-stats").textContent =
-    `Notalar: ${world.notes.filter(Boolean).length}/6 · O'limlar: ${deaths}`;
+    `Yakuniy daraja: ${LEVEL}/${LEVEL_MAX} · Qaydlar: ${world.notes.filter(Boolean).length}/6 · O'limlar: ${deaths}`;
   showScreen("screen-ending");
 }
+
+function goNextLevel(){
+  if(LEVEL >= FREE_LEVELS && LEVEL < LEVEL_MAX && !isLicensed()){
+    gameActive = false;
+    pendingLevelUp = true;
+    showScreen("screen-license");
+    if(document.pointerLockElement) document.exitPointerLock();
+    return;
+  }
+  LEVEL = Math.min(LEVEL_MAX, LEVEL + 1);
+  toast(`${LEVEL}-DARAJAGA XUSH KELIBSIZ`, 3000);
+  resetWorldState();
+  applyLights(true);
+  enemy.active = false;
+  enemyGroup.visible = false;
+  vigDanger.style.opacity = 0;
+  startChapter(1);
+}
+document.getElementById("lic-activate").addEventListener("click", () => {
+  const inp = document.getElementById("lic-input");
+  if(tryActivate(inp.value)){
+    setLicense();
+    Sfx.unlock();
+    toast("LITSENSIYA FAOLLASHTIRILDI!", 3200);
+    pendingLevelUp = false;
+    LEVEL = Math.max(LEVEL, FREE_LEVELS) + 1;
+    resetWorldState();
+    applyLights(true);
+    startChapter(1);
+  }else{
+    inp.classList.remove("bad"); void inp.offsetWidth; inp.classList.add("bad");
+    Sfx.wrong(); toast("Kalit noto'g'ri. Telegram orqali sotib oling.");
+  }
+});
+document.getElementById("lic-telegram").addEventListener("click", () => {
+  window.open(TELEGRAM_LINK, "_blank");
+});
+document.getElementById("lic-menu").addEventListener("click", () => location.reload());
 
 /* Checkpoint */
 function saveCheckpoint(){
   checkpoint = {
-    pos: { x: player.x, y: player.y, z: player.z },
-    yaw, chapter, step,
+    pos: { x: player.x, y: playerY, z: player.z },
+    yaw, chapter, step, level: LEVEL,
     lights: lightsOn,
     world: JSON.parse(JSON.stringify(world))
   };
@@ -973,22 +1102,27 @@ function saveCheckpoint(){
 function restoreCheckpoint(){
   if(!checkpoint) return;
   player.set(checkpoint.pos.x, checkpoint.pos.y, checkpoint.pos.z);
+  playerY = checkpoint.pos.y;
   yaw = checkpoint.yaw; pitch = 0;
   chapter = checkpoint.chapter;
   step = checkpoint.step;
+  LEVEL = checkpoint.level;
   world = JSON.parse(JSON.stringify(checkpoint.world));
   stamina = 100;
+  resetDoors();
+  if(world.doors.director) forceDoorOpen(doorDirector);
+  if(world.doors.cellar) forceDoorOpen(doorCellar);
   applyLights(checkpoint.lights !== false);
   refreshWorld();
   refreshInv();
   const q = {
-    readNote: "O'ng devordagi navbatchi notesini o'qing (E)",
+    readNote: "O'ng devordagi navbatchi qaydini o'qing (E)",
     findKey: "Sinf 2 xonasida TURQUY KALITNI toping",
     openDirector: "Direktor xonasi eshigini oching",
     enterDirector: "Direktor xonasiga kiring",
-    safe: "Direktor qasini oching — kod notalarda",
-    openCellar: "Koridor oxiridagi BODRUM ESHIGINI oching",
-    descend: "Bodrumga tush",
+    safe: "Direktor qasini oching — kod qaydlarda yashiringan",
+    openCellar: "Koridor oxiridagi bodrum eshigini oching",
+    descend: "Zinapoyadan bodrumga tushing",
     choice: "Tanlov — seniki."
   };
   updateQuest(q[step] || "");
@@ -1001,14 +1135,8 @@ function restoreCheckpoint(){
 }
 function refreshWorld(){
   turquoiseMesh.visible = !world.items.turquoise;
-  directorDoorMesh.visible = !world.doors.director;
-  cellarDoorMesh.visible = !world.doors.cellar;
-  for(const c of colliders){
-    if(c.id === 'directorDoor') c.off = world.doors.director;
-    if(c.id === 'cellarDoor') c.off = world.doors.cellar;
-  }
   note6Mesh.visible = world.doors.cellar;
-  if(window['_hiddenExit']) window['_hiddenExit'].visible = world.notes.every(Boolean);
+  if(window['_hiddenExit']) window['_hiddenExit'].visible = world.notes.every(Boolean) && LEVEL === LEVEL_MAX;
 }
 function killPlayer(){
   if(!gameActive || uiLock || chapter === 3) return;
@@ -1026,24 +1154,6 @@ function killPlayer(){
 document.getElementById("btn-retry").addEventListener("click", restoreCheckpoint);
 document.getElementById("btn-death-menu").addEventListener("click", () => location.reload());
 document.getElementById("btn-again").addEventListener("click", () => location.reload());
-
-/* Litsenziya */
-document.getElementById("lic-activate").addEventListener("click", () => {
-  const inp = document.getElementById("lic-input");
-  if(tryActivate(inp.value)){
-    setLicense();
-    Sfx.unlock();
-    toast("LITSENSIYA FAOLLASHTIRILDI!", 3200);
-    startChapter(2);
-  }else{
-    inp.classList.remove("bad"); void inp.offsetWidth; inp.classList.add("bad");
-    Sfx.wrong(); toast("Kalit noto'g'ri. Telegram orqali sotib oling.");
-  }
-});
-document.getElementById("lic-telegram").addEventListener("click", () => {
-  window.open(TELEGRAM_LINK, "_blank");
-});
-document.getElementById("lic-menu").addEventListener("click", () => location.reload());
 
 /* ============================================================
    ZONA
@@ -1066,13 +1176,7 @@ function checkTriggers(){
   if(!gameActive || uiLock) return;
   const z = zoneOf(player.x, player.z);
   if(chapter === 1 && step === 'enterDirector' && z === 'director'){
-    if(isLicensed()){
-      startChapter(2);
-    }else{
-      gameActive = false;
-      showScreen("screen-license");
-      if(document.pointerLockElement) document.exitPointerLock();
-    }
+    startChapter(2);
   }
   if(chapter === 2 && step === 'descend' && z === 'cellar'){
     startChapter(3);
@@ -1080,7 +1184,7 @@ function checkTriggers(){
 }
 
 /* ============================================================
-   SOYA AI
+   SOYA AI — kuchli, lekin adolatli
    ============================================================ */
 const DOOR_POINTS = {
   class1: { x:-3.2, z:-6 }, library: { x:-3.2, z:-18 }, director: { x:-3.2, z:-30 },
@@ -1090,23 +1194,27 @@ const enemy = {
   active: false, state: 'patrol',
   pos: new THREE.Vector3(0, 0, -36),
   speed: 1.75, speedChase: 3.5,
-  wp: 0, heartT: 0, bob: 0, graceT: 0,
+  wp: 0, heartT: 0, bob: 0, graceT: 0, chaseT: 0,
   patrol: [[0,4],[2.3,-8],[-2.3,-14],[2.3,-22],[-2.3,-30],[0,-37]],
   reset(){
+    const d = difficulty();
     this.active = chapter >= 1 && chapter !== 3;
     this.state = 'patrol';
     this.pos.set(0, 0, -36);
     this.wp = 2;
     this.heartT = 0;
-    this.graceT = 7;
+    this.chaseT = 0;
+    this.graceT = d.grace;
+    this.speed = d.patrolSpeed;
     enemyGroup.visible = this.active;
     vigDanger.style.opacity = 0;
-    this.speedChase = chapter === 2 ? 4.05 : 3.5;
+    this.speedChase = chapter === 2 ? d.chaseSpeed : 3.5;
   },
   startChase(){
     this.state = 'chase';
+    this.chaseT = 0;
     Sfx.growl();
-    toast("SOYA SENI KO'RDI — QACH!", 2300);
+    toast("SOYA SENI KO'RDI — QOCH!", 2300);
     vigDanger.style.opacity = 1;
   },
   endChase(){
@@ -1116,12 +1224,13 @@ const enemy = {
   update(dt){
     if(!this.active) return;
     if(this.graceT > 0) this.graceT -= dt;
+    const d = difficulty();
     const dx = player.x - this.pos.x, dz = player.z - this.pos.z;
     const dist = Math.hypot(dx, dz);
     const pZone = zoneOf(player.x, player.z);
     if(this.state === 'patrol'){
       const see = this.graceT <= 0 &&
-        (((pZone === 'corridor') && ((flashOn && dist < 17) || dist < 8.5)) || dist < 2.4);
+        (((pZone === 'corridor') && ((flashOn && dist < 16 + d.sightBonus) || dist < 8 + d.sightBonus*0.5)) || dist < 2.4);
       if(see && chapter !== 3){ this.startChase(); }
       else{
         const t = this.patrol[this.wp];
@@ -1132,17 +1241,19 @@ const enemy = {
         }
       }
     }else{
-      if(pZone === 'corridor' && dist > 25){ this.endChase(); }
+      this.chaseT += dt;
+      /* Soya charchaydi — uzoq quvish muvaffaqiyatsiz bo'lsa, u orqaga chekinadi */
+      if((pZone === 'corridor' && dist > 25) || this.chaseT > 16){ this.endChase(); }
       else{
         let tx, tz;
         if(pZone === 'corridor'){ tx = THREE.MathUtils.clamp(player.x, -3.25, 3.25); tz = player.z; }
         else if(pZone === 'cellar'){ tx = 0; tz = -37; }
-        else{ const d = DOOR_POINTS[pZone] || { x: 0, z: 0 }; tx = d.x; tz = d.z; }
+        else{ const dp = DOOR_POINTS[pZone] || { x: 0, z: 0 }; tx = dp.x; tz = dp.z; }
         this.moveToward(tx, tz, this.speedChase, dt);
       }
     }
     if(chapter !== 3 && this.graceT <= 0 &&
-       zoneOf(this.pos.x, this.pos.z) === pZone && dist < 1.12){
+       zoneOf(this.pos.x, this.pos.z) === pZone && dist < 1.05){
       killPlayer();
       return;
     }
@@ -1196,7 +1307,7 @@ function updatePlayer(dt){
   if(stamina <= 0) runBlocked = true;
   if(stamina > 30) runBlocked = false;
   const running = runHeld && moving && !runBlocked && stamina > 0;
-  stamina = THREE.MathUtils.clamp(stamina + (running ? -24 : 15) * dt, 0, 100);
+  stamina = THREE.MathUtils.clamp(stamina + (running ? -22 : 16) * dt, 0, 100);
 
   staminaFill.style.width = stamina + "%";
   staminaFill.style.background = runBlocked ? "linear-gradient(90deg,#a04040,#c06060)" : "linear-gradient(90deg,#8a949e,#b0bac4)";
@@ -1219,8 +1330,12 @@ function updatePlayer(dt){
     footTimer = 0;
   }
 
+  const zone = zoneOf(player.x, player.z);
+  const targetY = zone === 'cellar' ? 1.68 - 0.3 : 1.68;
+  playerY += (targetY - playerY) * Math.min(1, dt * 2.6);
+
   camera.position.set(player.x,
-    SETTINGS.playerHeight + Math.sin(bobT) * 0.032,
+    playerY + Math.sin(bobT) * 0.032,
     player.z);
   camera.rotation.order = "YXZ";
   camera.rotation.y = yaw;
@@ -1377,7 +1492,7 @@ async function toggleFullscreen(){
 }
 
 /* ============================================================
-   UNUMDORLIK
+   UNUMDORLIK — telefon qizib ketmasligi uchun moslashuvchan sifat
    ============================================================ */
 let fpsFrames = 0, fpsTime = 0;
 function updateQuality(dt){
@@ -1450,7 +1565,7 @@ function init(){
     loading.style.display = "none";
 
     document.getElementById("lic-status").textContent =
-      "LITSENSIYA: " + (isLicensed() ? "FAOL" : "YO'Q (1-bob bepul)");
+      "LITSENSIYA: " + (isLicensed() ? "FAOL" : "YO'Q (1—4-darajalar bepul)");
 
     animate();
   }catch(e){
@@ -1481,6 +1596,13 @@ function animate(){
     enemy.update(dt);
     checkTriggers();
     updateTarget();
+  }
+  for(const d of DOORS){
+    if(d.opening){
+      const diff = d.target - d.pivot.rotation.y;
+      d.pivot.rotation.y += diff * Math.min(1, dt * 7);
+      if(Math.abs(diff) < 0.02){ d.pivot.rotation.y = d.target; d.opening = false; }
+    }
   }
   if(turquoiseMesh && turquoiseMesh.visible){
     turquoiseMesh.rotation.y += dt * 2.4;
